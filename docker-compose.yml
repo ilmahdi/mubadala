@@ -1,0 +1,46 @@
+services:
+  mubadala-front:
+    build: ./front
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./front:/app
+    environment:
+      DEV_MODE: "${DEV_MODE:-false}"
+      BUILD_FRONT: "${BUILD_FRONT:-false}"
+      FRONT_HOST: "0.0.0.0"
+      FRONT_PORT: "3000"
+    restart: on-failure
+
+  mubadala-back:
+    build: ./back
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./back:/app
+    env_file:
+      - ./back/.env
+    environment:
+      DEV_MODE: "${DEV_MODE:-false}"
+      BUILD_FRONT: "${BUILD_FRONT:-false}"
+      DB_HOST: "mubadala-db"
+      DB_PORT: "5432"
+      BACK_HOST: "0.0.0.0"
+      BACK_PORT: "8000"
+    restart: on-failure
+    depends_on:
+      - mubadala-db
+
+  mubadala-db:
+    image: postgres:16
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./back/postgres-init:/docker-entrypoint-initdb.d
+    env_file:
+      - ./back/.env
+    restart: unless-stopped
+
+volumes:
+  postgres_data:

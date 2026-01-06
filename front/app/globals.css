@@ -1,0 +1,30 @@
+@import "tailwindcss";
+@import "material-icons/iconfont/material-icons.css";
+
+
+:root {
+  --background: #f8f2f2;
+  --foreground: #170000;
+  --color-brand: #C1272D;
+  --color-brand-light: #c65054;  
+}
+
+/* @media (prefers-color-scheme: dark) {
+  :root {
+    --background: #000E21;
+    --foreground: #DADEFF;
+  }
+} */
+
+@theme inline {
+  --color-brand: var(--color-brand);
+  --color-brand-light: var(--color-brand-light);
+  --color-text-primary: var(--foreground);
+}
+
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-poppins), Arial, Helvetica, sans-serif;
+}
