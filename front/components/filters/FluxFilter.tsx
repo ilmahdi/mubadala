@@ -39,7 +39,7 @@ export default function FluxFilter() {
         <button
           type="button"
           onClick={() => setIsOpen(!isOpen)}
-          className="text-primary w-full rounded-md border border-gray-200 bg-white py-2 pr-8 pl-2 text-left text-sm focus:ring-1 focus:ring-gray-200 focus:outline-none"
+          className="text-primary w-full rounded-md border border-gray-200 bg-gray-50 py-2 pr-8 pl-2 text-left text-sm focus:ring-1 focus:ring-gray-200 focus:outline-none"
         >
           {selected}
         </button>

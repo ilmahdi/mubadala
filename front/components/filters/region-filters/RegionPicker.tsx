@@ -94,7 +94,7 @@ export default function RegionPicker({
           </span>
 
           <input
-            className="w-full rounded-md border border-gray-200 bg-white py-2 pl-8 text-sm focus:ring-1 focus:ring-gray-200 focus:outline-none"
+            className="w-full rounded-md border border-gray-200 bg-gray-50 py-2 pl-8 text-sm focus:ring-1 focus:ring-gray-200 focus:outline-none"
             placeholder={placeholder}
             type="text"
             value={searchTerm}

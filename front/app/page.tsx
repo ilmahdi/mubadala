@@ -3,7 +3,7 @@
 import Filters from '@/components/filters/Filters';
 import Header from '@/components/Header';
 import Search from '@/components/Search';
-import TradeDashboard from '@/components/trade_data/TradeDashboard';
+import TradeDashboard from '@/components/trade-data/TradeDashboard';
 
 export default function Home() {
   return (
