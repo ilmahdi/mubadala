@@ -22,6 +22,7 @@ staticfiles/
 local_settings.py
 
 # Django migrations
+**/migrations/*
 */migrations/*.py
 */migrations/*.pyc
 !*/migrations/__init__.py
