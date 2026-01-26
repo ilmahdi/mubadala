@@ -61,7 +61,6 @@ async function handleApiError(response: Response): Promise<never> {
   throw new Error(errorMessage);
 }
 
-
 /**
  * Fetch a single page from the API
  */
