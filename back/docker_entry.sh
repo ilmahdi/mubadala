@@ -15,6 +15,8 @@ wait_for_db() {
 # -------------------------------------------------------------------
 # Startup
 # -------------------------------------------------------------------
+pip install --no-cache-dir -r requirements.txt
+
 wait_for_db
 
 if [ "$DEV_MODE" = "true" ]; then
