@@ -7,13 +7,12 @@ import { getTrades, TradeQueryParams } from '@/src/lib/services/trade.service';
 import { PaginatedResponse } from '@/src/lib/api';
 
 interface UseTradeDataOptions {
-  pageSize?: number;
   autoFetchAll?: boolean;
   filters?: TradeQueryParams;
 }
 
 export function useTradeData(options: UseTradeDataOptions = {}) {
-  const { pageSize = 10, autoFetchAll = false, filters } = options;
+  const { autoFetchAll = false, filters } = options;
 
   // Read page from URL state
   const [page] = useQueryState('page', parseAsInteger.withDefault(1));
@@ -68,7 +67,7 @@ export function useTradeData(options: UseTradeDataOptions = {}) {
     return () => {
       isMounted = false;
     };
-  }, [page, perPage, autoFetchAll, filtersKey]); // Add page and perPage as dependencies
+  }, [page, perPage, autoFetchAll, filters, filtersKey]);
 
   return {
     data,

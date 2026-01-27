@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from 'react';
 import { ColumnDef } from '@tanstack/react-table';
+import { useQueryState, parseAsInteger } from 'nuqs';
 
 import { DataTable } from '@/src/components/data-table/data-table';
 import { DataTableSortList } from '@/src/components/data-table/data-table-sort-list';
@@ -34,41 +35,47 @@ export function ManagedDataTable({
 }: DataTableProps) {
   const [expandedRowId, setExpandedRowId] = useState<string | null>(null);
 
+  // Number of items per page
+  const [perPage] = useQueryState('perPage', parseAsInteger.withDefault(10));
+  const pageCount = useMemo(() => {
+    return Math.ceil(totalCount / perPage);
+  }, [totalCount, perPage]);
+
+  // Default column visibility
   const defaultVisibility = useMemo(() => {
     const vis: Record<string, boolean> = {};
     columns.forEach((col) => {
       const id = col.id;
-      if (id) {
-        vis[id] = DISPLAYED_FIELDS.has(id);
-      }
+      if (id) vis[id] = DISPLAYED_FIELDS.has(id);
     });
     return vis;
   }, [columns]);
 
+  // Use the table hook
   const { table } = useDataTable<TradeRow>({
-    columns,
     data,
-    pageCount: Math.ceil(totalCount / 10),
+    columns,
+    pageCount,
     initialState: {
       pagination: {
         pageIndex: 0,
-        pageSize: 10,
+        pageSize: perPage,
       },
       columnVisibility: defaultVisibility,
     },
     enableAdvancedFilter: true,
     debounceMs: 350,
-    shallow: true, // better UX in Next.js
-    history: 'replace', // don't create new history entries
-    clearOnDefault: true,
-    manualPagination: true, // Enable server-side pagination
-    manualSorting: true, // Enable server-side sorting
-    manualFiltering: true, // Enable server-side filtering
+    shallow: true,
+    history: 'replace',
+    manualPagination: true,
+    manualSorting: true,
+    manualFiltering: true,
   });
 
   return (
     <DataTable
       table={table}
+      totalCount={totalCount}
       expandedRowId={expandedRowId}
       onToggleRow={(id) =>
         setExpandedRowId((prev) => (prev === id ? null : id))

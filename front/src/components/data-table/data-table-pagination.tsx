@@ -16,18 +16,19 @@ import {
 
 interface DataTablePaginationProps<TData> extends React.ComponentProps<'div'> {
   table: Table<TData>;
+  totalCount: number;
   pageSizeOptions?: number[];
 }
 
 export function DataTablePagination<TData>({
   table,
+  totalCount,
   pageSizeOptions = [10, 20, 30, 40, 50],
 }: DataTablePaginationProps<TData>) {
   const { pageIndex, pageSize } = table.getState().pagination;
-  const totalRows = table.getCoreRowModel().rows.length;
 
-  const startRow = totalRows === 0 ? 0 : pageIndex * pageSize + 1;
-  const endRow = Math.min((pageIndex + 1) * pageSize, totalRows);
+  const startRow = totalCount === 0 ? 0 : pageIndex * pageSize + 1;
+  const endRow = Math.min((pageIndex + 1) * pageSize, totalCount);
 
   const pageCount = table.getPageCount();
   return (
@@ -35,10 +36,11 @@ export function DataTablePagination<TData>({
       <p className="text-muted-foreground text-xs font-medium text-gray-600">
         Showing{' '}
         <span className="font-semibold text-gray-900">
-          {totalRows === 0 ? 0 : startRow}
+          {totalCount === 0 ? 0 : startRow}
         </span>
         –<span className="font-semibold text-gray-900">{endRow}</span> of{' '}
-        <span className="font-semibold text-gray-900">{totalRows}</span> results
+        <span className="font-semibold text-gray-900">{totalCount}</span>{' '}
+        results
       </p>
 
       <div className="flex flex-wrap items-center gap-3">

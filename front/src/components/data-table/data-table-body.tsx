@@ -17,22 +17,7 @@ export function DataTableBody<TData extends { id: string }>({
 }: DataTableBodyProps<TData>) {
   const rows: Row<TData>[] = table.getRowModel().rows;
 
-  if (loading) {
-    return (
-      <TableBody>
-        <TableRow>
-          <TableCell
-            colSpan={table.getAllColumns().length}
-            className="px-4 py-8 text-center text-sm text-gray-400"
-          >
-            Loading…
-          </TableCell>
-        </TableRow>
-      </TableBody>
-    );
-  }
-
-  if (!rows.length) {
+  if (!rows.length && !loading) {
     return (
       <TableBody>
         <TableRow>
@@ -55,6 +40,7 @@ export function DataTableBody<TData extends { id: string }>({
           row={row}
           isOpen={expandedRowId === row.id}
           onToggle={() => onToggle(expandedRowId === row.id ? null : row.id)}
+          loading={loading}
         />
       ))}
     </TableBody>
