@@ -335,7 +335,7 @@ function DataTableSortItem({
           </PopoverTrigger>
           <PopoverContent
             id={fieldListboxId}
-            className="w-(--radix-popover-trigger-width) p-0"
+            className="w-(--radix-popover-trigger-width) bg-white p-0"
           >
             <Command>
               <CommandInput placeholder="Search fields..." />
@@ -373,7 +373,7 @@ function DataTableSortItem({
           </SelectTrigger>
           <SelectContent
             id={directionListboxId}
-            className="min-w-(--radix-select-trigger-width)"
+            className="min-w-(--radix-select-trigger-width) bg-white"
           >
             {dataTableConfig.sortOrders.map((order) => (
               <SelectItem key={order.value} value={order.value}>

@@ -1,6 +1,7 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useQueryState } from 'nuqs';
 import DatePicker, { type MonthYear } from './date-picker/DatePicker';
 
 function isComplete(
@@ -22,15 +23,30 @@ function formatMonthYear(value: MonthYear): string | null {
   return date.toLocaleString('en', { month: 'short', year: 'numeric' });
 }
 
+function formatDateForAPI(value: MonthYear): string | null {
+  if (!isComplete(value)) return null;
+  const date = new Date(value.year, value.month, 1);
+  return date.toISOString().split('T')[0];
+}
+
+function parseDateFromAPI(dateStr: string | null): MonthYear {
+  if (!dateStr) return { year: null, month: null };
+  const date = new Date(dateStr);
+  return { year: date.getFullYear(), month: date.getMonth() };
+}
+
 export default function DateFilter() {
-  const [from, setFrom] = useState<MonthYear>({
-    year: new Date().getFullYear(),
-    month: 0,
-  });
-  const [to, setTo] = useState<MonthYear>({
-    year: new Date().getFullYear(),
-    month: 0,
-  });
+  const [dateAfter, setDateAfter] = useQueryState('date_after');
+  const [dateBefore, setDateBefore] = useQueryState('date_before');
+
+  const [from, setFrom] = useState<MonthYear>(parseDateFromAPI(dateAfter));
+  const [to, setTo] = useState<MonthYear>(parseDateFromAPI(dateBefore));
+
+  // Sync local state with URL state on mount
+  useEffect(() => {
+    if (dateAfter) setFrom(parseDateFromAPI(dateAfter));
+    if (dateBefore) setTo(parseDateFromAPI(dateBefore));
+  }, []);
 
   const hasRange = isComplete(from) && isComplete(to);
   const isInvalidRange = hasRange && compareMonthYear(to, from) < 0;
@@ -47,10 +63,20 @@ export default function DateFilter() {
           value={from}
           onChange={(next) => {
             setFrom(next);
-            setTo(next);
+            if (!isComplete(to)) setTo(next);
+            const formatted = formatDateForAPI(next);
+            setDateAfter(formatted);
           }}
         />
-        <DatePicker label="TO" value={to} onChange={(next) => setTo(next)} />
+        <DatePicker
+          label="TO"
+          value={to}
+          onChange={(next) => {
+            setTo(next);
+            const formatted = formatDateForAPI(next);
+            setDateBefore(formatted);
+          }}
+        />
       </div>
 
       {isInvalidRange && (

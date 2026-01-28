@@ -1,15 +1,26 @@
 import { ChevronDown } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
+import { useQueryState } from 'nuqs';
 
 export default function FluxFilter() {
   const [isOpen, setIsOpen] = useState(false);
-  const [selected, setSelected] = useState('All Flows');
+  const [flowLabel, setFlowLabel] = useQueryState('flow_label');
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   const options = ['All Flows', 'Import', 'Export'];
+  const selected =
+    flowLabel === 'Import'
+      ? 'Import'
+      : flowLabel === 'Export'
+        ? 'Export'
+        : 'All Flows';
 
   const handleSelect = (option: string) => {
-    setSelected(option);
+    if (option === 'All Flows') {
+      setFlowLabel(null);
+    } else {
+      setFlowLabel(option);
+    }
     setIsOpen(false);
   };
 

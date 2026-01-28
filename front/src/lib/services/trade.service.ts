@@ -18,11 +18,11 @@ export interface TradeQueryParams {
   page_size?: number;
   ordering?: string;
   search?: string;
-  // Filtering
-  date_after?: string;
-  date_before?: string;
-  continent?: string;
-  country_name?: string;
+  // Filtering - using Django filter field names
+  date__gte?: string; // date greater than or equal (after)
+  date__lte?: string; // date less than or equal (before)
+  continent?: string | string[]; // can be single value or array
+  country_name?: string | string[]; // can be single value or array
   flow_label?: string;
   hs_product_code?: string;
   // Add more filters as needed
@@ -36,7 +36,14 @@ function buildQueryString(params: TradeQueryParams): string {
 
   Object.entries(params).forEach(([key, value]) => {
     if (value !== undefined && value !== null && value !== '') {
-      searchParams.append(key, String(value));
+      // Handle array values (for filters like continent, country)
+      if (Array.isArray(value)) {
+        value.forEach((item) => {
+          if (item) searchParams.append(key, String(item));
+        });
+      } else {
+        searchParams.append(key, String(value));
+      }
     }
   });
 

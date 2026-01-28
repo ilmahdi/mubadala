@@ -111,7 +111,7 @@ const FLOW_STYLES: Record<
 const styles = {
   code: 'font-mono text-xs text-gray-700 whitespace-nowrap',
   label:
-    'text-xs font-medium text-gray-900 first-letter:uppercase lowercase line-clamp-2 leading-snug max-w-[420px] truncate',
+    'text-xs font-medium text-gray-900 first-letter:uppercase lowercase line-clamp-2 leading-snug max-w-[480px] truncate',
   region:
     'text-xs font-medium text-gray-500 first-letter:uppercase lowercase line-clamp-2 leading-snug',
   numeric: 'text-xs text-right tabular-nums font-medium text-gray-900',

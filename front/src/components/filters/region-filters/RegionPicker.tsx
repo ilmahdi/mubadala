@@ -7,14 +7,22 @@ export default function RegionPicker({
   label,
   regions,
   placeholder,
+  value = [],
+  onChange,
 }: {
   label: string;
   regions: string[];
   placeholder: string;
+  value?: string[];
+  onChange?: (selected: string[]) => void;
 }) {
-  const [selected, setSelected] = useState<string[]>([]);
+  const [selected, setSelected] = useState<string[]>(value);
   const [searchTerm, setSearchTerm] = useState('');
   const [showDropdown, setShowDropdown] = useState(false);
+
+  useEffect(() => {
+    setSelected(value);
+  }, [value]);
 
   const wrapperRef = useRef<HTMLDivElement>(null);
 
@@ -33,12 +41,16 @@ export default function RegionPicker({
   }, []);
 
   const removeCountry = (country: string) => {
-    setSelected(selected.filter((c) => c !== country));
+    const newSelected = selected.filter((c) => c !== country);
+    setSelected(newSelected);
+    onChange?.(newSelected);
   };
 
   const addCountry = (country: string) => {
     if (!selected.includes(country)) {
-      setSelected([...selected, country]);
+      const newSelected = [...selected, country];
+      setSelected(newSelected);
+      onChange?.(newSelected);
       setSearchTerm('');
     }
   };
@@ -57,7 +69,10 @@ export default function RegionPicker({
 
           {selected.length > 0 && (
             <button
-              onClick={() => setSelected([])}
+              onClick={() => {
+                setSelected([]);
+                onChange?.([]);
+              }}
               className="text-brand text-xs hover:underline"
             >
               Clear All ({selected.length})
