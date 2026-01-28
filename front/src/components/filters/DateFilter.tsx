@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useMemo } from 'react';
 import { useQueryState } from 'nuqs';
 import DatePicker, { type MonthYear } from './date-picker/DatePicker';
 
@@ -39,14 +39,9 @@ export default function DateFilter() {
   const [dateAfter, setDateAfter] = useQueryState('date_after');
   const [dateBefore, setDateBefore] = useQueryState('date_before');
 
-  const [from, setFrom] = useState<MonthYear>(parseDateFromAPI(dateAfter));
-  const [to, setTo] = useState<MonthYear>(parseDateFromAPI(dateBefore));
-
-  // Sync local state with URL state on mount
-  useEffect(() => {
-    if (dateAfter) setFrom(parseDateFromAPI(dateAfter));
-    if (dateBefore) setTo(parseDateFromAPI(dateBefore));
-  }, []);
+  // Derive local state from URL state
+  const from = useMemo(() => parseDateFromAPI(dateAfter), [dateAfter]);
+  const to = useMemo(() => parseDateFromAPI(dateBefore), [dateBefore]);
 
   const hasRange = isComplete(from) && isComplete(to);
   const isInvalidRange = hasRange && compareMonthYear(to, from) < 0;
@@ -62,17 +57,18 @@ export default function DateFilter() {
           label="FROM"
           value={from}
           onChange={(next) => {
-            setFrom(next);
-            if (!isComplete(to)) setTo(next);
             const formatted = formatDateForAPI(next);
             setDateAfter(formatted);
+            // Auto-set "to" date if it's not set yet
+            if (!isComplete(to)) {
+              setDateBefore(formatted);
+            }
           }}
         />
         <DatePicker
           label="TO"
           value={to}
           onChange={(next) => {
-            setTo(next);
             const formatted = formatDateForAPI(next);
             setDateBefore(formatted);
           }}

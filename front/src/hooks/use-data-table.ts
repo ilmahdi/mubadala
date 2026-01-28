@@ -59,6 +59,8 @@ interface UseDataTableProps<TData>
 }
 
 export function useDataTable<TData>(props: UseDataTableProps<TData>) {
+  'use no memo';
+
   const {
     columns,
     pageCount = -1,
@@ -147,11 +149,17 @@ export function useDataTable<TData>(props: UseDataTableProps<TData>) {
     );
   }, [columns]);
 
-  const [sorting, setSorting] = useQueryState(
+  const [rawSorting, setSorting] = useQueryState(
     sortKey,
     getSortingStateParser<TData>(columnIds)
       .withOptions(queryStateOptions)
       .withDefault(initialState?.sorting ?? []),
+  );
+
+  // Ensure sorting is always a valid array
+  const sorting = React.useMemo<SortingState>(
+    () => (Array.isArray(rawSorting) ? rawSorting : []),
+    [rawSorting],
   );
 
   const onSortingChange = React.useCallback(
