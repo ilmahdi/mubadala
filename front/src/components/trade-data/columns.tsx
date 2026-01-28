@@ -110,11 +110,13 @@ const FLOW_STYLES: Record<
 
 const styles = {
   code: 'font-mono text-xs text-gray-700 whitespace-nowrap',
-  label: 'text-xs font-medium text-gray-900 whitespace-break-spaces lowercase',
+  label:
+    'text-xs font-medium text-gray-900 first-letter:uppercase lowercase line-clamp-2 leading-snug max-w-[420px] truncate',
+  region:
+    'text-xs font-medium text-gray-500 first-letter:uppercase lowercase line-clamp-2 leading-snug',
   numeric: 'text-xs text-right tabular-nums font-medium text-gray-900',
   muted: 'text-xs text-gray-500',
   flow: 'text-xs font-medium px-2 py-0 rounded-full',
-  continent: 'text-xs font-semibold tracking-wide text-gray-600 uppercase',
 };
 
 export const textCell = (className: string) => {
@@ -220,7 +222,7 @@ export const columns: ColumnDef<TradeRow>[] = [
         title="Continent"
       />
     ),
-    cell: textCell(styles.continent),
+    cell: textCell(styles.region),
     meta: { label: 'Continent', variant: 'select', icon: Globe },
     enableColumnFilter: true,
   },
@@ -243,7 +245,7 @@ export const columns: ColumnDef<TradeRow>[] = [
     header: ({ column }) => (
       <DataTableColumnHeader label="Country" column={column} title="Country" />
     ),
-    cell: textCell(styles.label),
+    cell: textCell(styles.region),
     meta: { label: 'Country', variant: 'text', icon: Flag },
     enableColumnFilter: true,
   },
