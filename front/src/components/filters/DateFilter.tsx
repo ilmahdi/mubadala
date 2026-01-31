@@ -3,6 +3,7 @@
 import { useMemo } from 'react';
 import { useQueryState } from 'nuqs';
 import DatePicker, { type MonthYear } from './date-picker/DatePicker';
+import { filterStyles } from '@/src/config/component-styles';
 
 function isComplete(
   value: MonthYear,
@@ -49,7 +50,7 @@ export default function DateFilter() {
   return (
     <div className="bg-white">
       <div className="mb-2 flex items-center justify-between">
-        <label className="text-sm font-medium">Date range</label>
+        <label className={filterStyles.sectionTitle}>Date range</label>
       </div>
 
       <div className="flex flex-col gap-2">
@@ -76,7 +77,7 @@ export default function DateFilter() {
       </div>
 
       {isInvalidRange && (
-        <p className="mt-2 text-xs text-red-500">
+        <p className="mt-2 text-xs text-red-600">
           End date must be after start date.
         </p>
       )}

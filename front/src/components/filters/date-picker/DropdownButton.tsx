@@ -19,7 +19,7 @@ export function DropdownButton({
       type="button"
       disabled={disabled}
       onClick={onClick}
-      className="relative w-full rounded-md border border-gray-200 bg-gray-50 py-1 pr-8 pl-2 text-left text-sm focus:ring-1 focus:ring-gray-200 focus:outline-none disabled:cursor-not-allowed disabled:text-gray-300"
+      className="focus:border-brand focus:ring-brand/20 relative w-full rounded-md border border-gray-200 bg-gray-50 py-1 pr-8 pl-2 text-left text-sm transition-colors focus:ring-2 focus:outline-none disabled:cursor-not-allowed disabled:text-gray-300"
     >
       <span className={value ? 'text-primary' : 'text-gray-400'}>
         {value ?? placeholder}

@@ -1,3 +1,4 @@
+// import { cardStyles, textStyles } from '@/src/config/component-styles';
 import TradeDataTable from './TradeDataTable';
 
 export default function TradeDashboard() {
@@ -5,14 +6,14 @@ export default function TradeDashboard() {
     <div className="flex h-fit flex-col gap-3 overflow-auto">
       {/* Top summary area (placeholder for future KPIs/charts) */}
       {/* <div className="grid grid-cols-3 gap-3">
-        <div className="rounded-md border-[0.5px] border-gray-200 bg-white px-4 py-3 text-xs text-gray-500">
-          Total Imports
+        <div className={cardStyles.compact}>
+          <p className={textStyles.muted}>Total Imports</p>
         </div>
-        <div className="rounded-md border-[0.5px] border-gray-200 bg-white px-4 py-3 text-xs text-gray-500">
-          Total Exports
+        <div className={cardStyles.compact}>
+          <p className={textStyles.muted}>Total Exports</p>
         </div>
-        <div className="rounded-md border-[0.5px] border-gray-200 bg-white px-4 py-3 text-xs text-gray-500">
-          Trade Balance
+        <div className={cardStyles.compact}>
+          <p className={textStyles.muted}>Trade Balance</p>
         </div>
       </div> */}
 

@@ -100,7 +100,7 @@ export default function Search() {
 
   return (
     <div
-      className="flex items-center rounded-md border border-gray-100 bg-white px-2 py-1"
+      className="flex items-center rounded-md border border-gray-100 bg-white px-3 py-1 transition-colors focus-within:border-gray-200 focus-within:ring-0"
       role="search"
       aria-label="Trade data search"
     >

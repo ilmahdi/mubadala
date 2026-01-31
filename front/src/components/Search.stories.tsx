@@ -103,7 +103,7 @@ export const DarkMode: Story = {
     },
   },
   decorators: [
-    (Story) => (
+    (Story: React.ComponentType) => (
       <div className="dark">
         <Story />
       </div>

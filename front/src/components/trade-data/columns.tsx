@@ -78,45 +78,30 @@ export const FLOW_LABELS = {
   },
 } as const;
 
-const FLOW_STYLES: Record<
-  string,
-  {
-    className: string;
-  }
-> = {
-  'Importations CAF': {
-    className: 'text-rose-700 bg-rose-50 border border-rose-100',
-  },
-  'Exportations FAB': {
-    className: 'text-emerald-700 bg-emerald-50 border border-emerald-100',
-  },
+import { flowBadgeStyles, tableStyles } from '@/src/config/component-styles';
+
+const FLOW_STYLES: Record<string, string> = {
+  'Importations CAF': flowBadgeStyles.import,
+  'Exportations FAB': flowBadgeStyles.export,
   'Importations en admission temporaire pour perfectionnement actif  sans paiement':
-    {
-      className: 'text-amber-700 bg-amber-50 border border-amber-100',
-    },
+    flowBadgeStyles.tempWithout,
   'Importations en admission temporaire pour perfectionnement actif  avec paiement':
-    {
-      className: 'text-orange-700 bg-orange-50 border border-orange-100',
-    },
+    flowBadgeStyles.tempWith,
   "Réexportations en suite d'admission temporaire pour perfectionnement actif avec paiement":
-    {
-      className: 'text-purple-700 bg-purple-50 border border-purple-100',
-    },
+    flowBadgeStyles.reexportWith,
   "Réexportations en suite d'admission temporaire pour perfectionnement actif sans paiement":
-    {
-      className: 'text-blue-700 bg-blue-50 border border-blue-100',
-    },
+    flowBadgeStyles.reexportWithout,
 };
 
 const styles = {
-  code: 'font-mono text-xs text-gray-700 whitespace-nowrap',
+  code: tableStyles.cellCode,
   label:
     'text-xs font-medium text-gray-900 first-letter:uppercase lowercase line-clamp-2 leading-snug max-w-[480px] truncate',
   region:
     'text-xs font-medium text-gray-500 first-letter:uppercase lowercase line-clamp-2 leading-snug',
-  numeric: 'text-xs text-right tabular-nums font-medium text-gray-900',
-  muted: 'text-xs text-gray-500',
-  flow: 'text-xs font-medium px-2 py-0 rounded-full',
+  numeric: tableStyles.cellNumeric,
+  muted: tableStyles.cellMuted,
+  flowBase: flowBadgeStyles.base,
 };
 
 export const textCell = (className: string) => {
@@ -142,12 +127,10 @@ export const flowCell = <TData,>({ getValue }: CellContext<TData, unknown>) => {
   const shortLabel =
     FLOW_LABELS[LANG][fullLabel as keyof typeof FLOW_LABELS.fr] ?? fullLabel;
 
-  const flowStyle =
-    FLOW_STYLES[fullLabel]?.className ??
-    'text-gray-700 bg-gray-50 border border-gray-200';
+  const flowStyle = FLOW_STYLES[fullLabel] ?? flowBadgeStyles.default;
 
   return (
-    <span title={fullLabel} className={cn(styles.flow, flowStyle)}>
+    <span title={fullLabel} className={cn(styles.flowBase, flowStyle)}>
       {shortLabel}
     </span>
   );

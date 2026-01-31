@@ -37,7 +37,11 @@ export function DataTableRow<TData extends { id: string }>({
           {loading ? (
             <Skeleton className="h-4 w-4" />
           ) : (
-            <button onClick={onToggle} className="text-brand cursor-pointer">
+            <button
+              onClick={onToggle}
+              className="text-brand flex cursor-pointer items-center justify-center p-1"
+              aria-label={isOpen ? 'Collapse row' : 'Expand row'}
+            >
               {isOpen ? (
                 <ChevronUp size={18} className={iconClass} />
               ) : (

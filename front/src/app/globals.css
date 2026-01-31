@@ -1,20 +1,45 @@
 @import 'tailwindcss';
+@import '../styles/tokens.css';
 
-/* Design tokens */
+/* Legacy tokens for backward compatibility - will be deprecated */
 :root {
   --bg: oklch(100% 0.00011 271.152);
   --fg: oklch(0.145 0 0);
-
   --brand: #c1272d;
   --brand-light: #c65054;
 }
 
-/* Expose tokens to Tailwind */
+/* Expose design tokens to Tailwind */
 @theme inline {
+  /* Legacy support */
   --color-background: var(--bg);
   --color-foreground: var(--fg);
   --color-brand: var(--brand);
   --color-brand-light: var(--brand-light);
+
+  /* Design token aliases for Tailwind */
+  --color-brand-primary: var(--color-brand-primary);
+  --color-brand-primary-hover: var(--color-brand-primary-hover);
+  --color-brand-primary-light: var(--color-brand-primary-light);
+
+  /* Semantic colors */
+  --color-text-primary: var(--color-text-primary);
+  --color-text-secondary: var(--color-text-secondary);
+  --color-text-muted: var(--color-text-muted);
+
+  /* Surface colors */
+  --color-surface: var(--color-surface);
+  --color-surface-secondary: var(--color-surface-secondary);
+
+  /* Border colors */
+  --color-border: var(--color-border);
+  --color-border-light: var(--color-border-light);
+
+  /* Shadows */
+  --shadow-xs: var(--shadow-xs);
+  --shadow-sm: var(--shadow-sm);
+  --shadow-md: var(--shadow-md);
+  --shadow-lg: var(--shadow-lg);
 }
 /* body { @apply !min-w-full; } */
 /* Base styles */

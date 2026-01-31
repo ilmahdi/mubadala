@@ -12,6 +12,7 @@ import {
 import { getColumnPinningStyle } from '@/src/lib/data-table';
 import { cn } from '@/src/lib/utils';
 import { Skeleton } from './data-table-cell-skeleton';
+import { tableStyles } from '@/src/config/component-styles';
 
 interface DataTableProps<TData> extends React.ComponentProps<'div'> {
   table: TanstackTable<TData>;
@@ -40,7 +41,7 @@ export function DataTable<TData extends { id: string }>({
     >
       {children}
 
-      <div className="rounded-0 overflow-hidden border-0">
+      <div className="overflow-hidden rounded-md border border-gray-200">
         <Table className="text-sm">
           <TableHeader className="bg-gray-50">
             {table.getHeaderGroups().map((headerGroup) => (
@@ -57,7 +58,7 @@ export function DataTable<TData extends { id: string }>({
                     style={{
                       ...getColumnPinningStyle({ column: header.column }),
                     }}
-                    className="font-regular px-2 py-2 text-xs tracking-wide text-gray-600 uppercase"
+                    className={tableStyles.header}
                   >
                     {loading ? (
                       <Skeleton className="h-4 w-full" />

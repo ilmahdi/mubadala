@@ -36,7 +36,7 @@ export const SearchInput = memo(
             placeholder={placeholder}
             className={cn(
               'w-full rounded-lg border-0 py-2.5 pl-10 text-sm',
-              'focus:ring-brand focus:ring-1 focus:ring-offset-0 focus:outline-none',
+              'focus:outline-none',
               'placeholder:text-gray-400',
               value ? 'pr-10' : 'pr-4',
             )}
@@ -52,7 +52,7 @@ export const SearchInput = memo(
               className={cn(
                 'absolute right-3 rounded-sm p-0.5',
                 'text-gray-400 hover:text-gray-600',
-                'focus:ring-brand focus:ring-1 focus:outline-none',
+                'transition-colors focus:outline-none',
               )}
               aria-label="Clear search"
             >

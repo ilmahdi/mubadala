@@ -5,6 +5,7 @@
  */
 
 import { memo } from 'react';
+import { textStyles } from '@/src/config/component-styles';
 
 interface SearchStatusIndicatorProps {
   currentLength: number;
@@ -22,7 +23,7 @@ export const SearchStatusIndicator = memo(function SearchStatusIndicator({
   const remaining = minChars - currentLength;
 
   return (
-    <span className="mr-2 text-xs text-gray-400" aria-live="polite">
+    <span className={`${textStyles.muted} mr-2 text-xs`} aria-live="polite">
       {remaining} more char{remaining !== 1 ? 's' : ''}
     </span>
   );

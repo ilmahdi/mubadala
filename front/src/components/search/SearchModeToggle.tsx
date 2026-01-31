@@ -19,7 +19,7 @@ interface SearchModeToggleProps {
 const getButtonClass = (isActive: boolean) =>
   cn(
     'rounded-md px-3 py-1 text-xs font-medium transition-colors',
-    'focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-brand focus-visible:ring-offset-1',
+    'focus-visible:ring-2 focus-visible:ring-brand/20 focus-visible:outline-none',
     isActive
       ? 'bg-brand text-white shadow-sm'
       : 'text-gray-600 hover:bg-brand/5 hover:text-brand',
