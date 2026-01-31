@@ -136,17 +136,19 @@ Main dashboard (`components/trade-data/TradeDashboard.tsx`):
 
 Complete API integration (`lib/api.ts`, `lib/services/trade.service.ts`):
 
-- RESTful API client
+- RESTful API client for read-only trade data
 - Automatic pagination handling
 - Error handling
 - Type-safe requests
-- Request/response interceptors
+- Advanced filtering support
+
+**Note**: The API is read-only. While the service includes CRUD function signatures, these are not implemented on the backend.
 
 ### 4. Custom Hooks
 
 Reusable hooks (`hooks/`):
 
-- `useTradeData` - Trade data fetching and state management
+- `useTradeData` - Trade data fetching with URL state management
 - `useDataTable` - Table state and interactions
 - `useDebouncedCallback` - Debounced function calls
 
@@ -172,21 +174,22 @@ npx shadcn-ui@latest add [component-name]
 ### Using the Trade Service
 
 ```typescript
-import { tradeService } from '@/lib/services/trade.service';
-
-// Fetch all trades (auto-pagination)
-const trades = await tradeService.getAllTrades();
+import { getTrades } from '@/lib/services/trade.service';
 
 // Fetch single page
-const page = await tradeService.getTrades({ page: 1, page_size: 100 });
+const response = await getTrades({ page: 1, page_size: 100 });
+const { results, count } = response;
 
 // Fetch with filters
-const filtered = await tradeService.getTrades({
+const response = await getTrades({
   continent: 'Europe',
   date_after: '2024-01-01',
   search: 'coffee',
+  page_size: 100,
 });
 ```
+
+**Note**: While the service includes functions like `createTrade()`, `updateTrade()`, `deleteTrade()`, these are not currently implemented on the backend. The API is read-only.
 
 ### Using the Custom Hook
 
@@ -194,14 +197,18 @@ const filtered = await tradeService.getTrades({
 import { useTradeData } from '@/components/trade-data/useTradeData'
 
 function MyComponent() {
-  const { data, loading, error } = useTradeData({ pageSize: 50 })
+  const { data, loading, error, totalCount } = useTradeData({
+    filters: { continent: 'Europe' }
+  })
 
   if (loading) return <div>Loading...</div>
   if (error) return <div>Error: {error}</div>
 
-  return <div>{data.length} trades loaded</div>
+  return <div>{totalCount} total trades, showing {data.length}</div>
 }
 ```
+
+**Note**: The hook automatically manages pagination state via URL parameters. It does not support `autoFetchAll` mode.
 
 ## 🧪 Development Scripts
 
