@@ -15,6 +15,10 @@ import type {
 } from '@/src/types/data-table';
 import type { JoinOperator } from '@/src/types/filters';
 import { buildBackendFilters } from '@/src/lib/filters/filter-builder';
+import {
+  useSearch,
+  searchParamsToQueryParams,
+} from '@/src/lib/search/search-params';
 
 // Constants
 const DEFAULT_PAGE = 1;
@@ -96,6 +100,9 @@ export function useTradeData(
       .withOptions({ clearOnDefault: true, shallow: true }),
   );
 
+  // Search parameters (from Search component)
+  const { hsCodeSearch, productSearch, categorySearch } = useSearch();
+
   // Parse and normalize filters from URL state
   const advancedFilters: ExtendedColumnFilter<TradeRow>[] = useMemo(
     () => (Array.isArray(filters_raw) ? filters_raw : []),
@@ -122,7 +129,13 @@ export function useTradeData(
       void setPage(DEFAULT_PAGE);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [advancedFilters, isHydrated]);
+  }, [
+    advancedFilters,
+    hsCodeSearch,
+    productSearch,
+    categorySearch,
+    isHydrated,
+  ]);
 
   // Convert sorting state to Django ordering format
   // Django expects: "-date" for descending, "date" for ascending
@@ -152,16 +165,31 @@ export function useTradeData(
   }, [advancedFilters, joinOperator]);
 
   // Build complete query parameters for API request
-  const queryParams = useMemo(
-    (): TradeQueryParams => ({
+  const queryParams = useMemo((): TradeQueryParams => {
+    const searchQueryParams = searchParamsToQueryParams({
+      hsCodeSearch,
+      productSearch,
+      categorySearch,
+    });
+
+    return {
       ...additionalFilters,
       ...backendFilterParams,
+      ...searchQueryParams,
       page,
       page_size: perPage,
       ordering,
-    }),
-    [additionalFilters, backendFilterParams, page, perPage, ordering],
-  );
+    };
+  }, [
+    additionalFilters,
+    backendFilterParams,
+    hsCodeSearch,
+    productSearch,
+    categorySearch,
+    page,
+    perPage,
+    ordering,
+  ]);
 
   // Fetch trade data from API
   const fetchTrades = useCallback(async () => {

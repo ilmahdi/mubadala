@@ -29,6 +29,7 @@ class TradeFilter(filters.FilterSet):
         fields = {
             "hs_product_code": ["startswith", "iexact"],
             "hs_product_label": ["icontains", "iexact"],
+            "hs_chapter_label": ["icontains", "iexact"],
             "flow_label": ["iexact", "in"],
             "country_name": ["iexact", "in", "icontains"],
             "continent": ["iexact", "in"],

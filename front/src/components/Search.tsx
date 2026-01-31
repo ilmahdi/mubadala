@@ -1,61 +1,125 @@
 'use client';
 
-import { useState } from 'react';
-import { Search as SearchIcon } from 'lucide-react';
+import { useCallback, useState, useRef } from 'react';
+import { useQueryState, parseAsString } from 'nuqs';
+import { useDebouncedCallback } from '@/src/hooks/use-debounced-callback';
+import { useSearchMode } from '@/src/hooks/use-search-mode';
+import { useKeyboardShortcut } from '@/src/hooks/use-keyboard-shortcut';
+import {
+  SearchMode,
+  getSearchModeConfig,
+  SEARCH_CONFIG,
+} from '@/src/lib/search/search-config';
+import { SearchModeToggle } from '@/src/components/search/SearchModeToggle';
+import { SearchInput } from '@/src/components/search/SearchInput';
+import { SearchStatusIndicator } from '@/src/components/search/SearchStatusIndicator';
 
-type SearchMode = 'hscode' | 'product' | 'category';
-
-const modes: { key: SearchMode; label: string }[] = [
-  { key: 'hscode', label: 'HS Code' },
-  { key: 'product', label: 'Product' },
-  { key: 'category', label: 'Category' },
-];
-
-const placeholders: Record<SearchMode, string> = {
-  hscode: 'Search by HS Code...',
-  product: 'Search by product name...',
-  category: 'Search by category...',
-};
-
+/**
+ * Main search component with backend integration.
+ *
+ * Features:
+ * - Multiple search modes (HS Code, Product, Category)
+ * - URL state management via nuqs
+ * - Debounced input for performance
+ * - Persists selected mode to localStorage
+ * - Keyboard shortcuts (Ctrl+K to focus, Escape to clear)
+ * - Accessibility compliant
+ */
 export default function Search() {
-  const [mode, setMode] = useState<SearchMode>('hscode');
+  const [mode, setMode] = useSearchMode();
+  const inputRef = useRef<HTMLInputElement>(null);
 
-  const btnClass = (active: boolean) =>
-    `rounded-md px-3 py-1 text-xs font-medium transition-colors ${
-      active
-        ? 'bg-brand text-white shadow-sm'
-        : 'text-gray-600 hover:bg-brand/5'
-    }`;
+  const currentMode = getSearchModeConfig(mode);
+
+  // URL state for the search parameter
+  const [urlSearchValue, setUrlSearchValue] = useQueryState(
+    currentMode.field,
+    parseAsString.withDefault('').withOptions({
+      history: 'replace',
+      shallow: true,
+      clearOnDefault: true,
+    }),
+  );
+
+  // Derive local state from URL state (no useState needed)
+  const [searchText, setSearchText] = useState(urlSearchValue || '');
+
+  // Debounced URL update
+  const debouncedSetSearch = useDebouncedCallback((value: string) => {
+    if (value.length >= currentMode.minChars || value.length === 0) {
+      void setUrlSearchValue(value || null);
+    }
+  }, SEARCH_CONFIG.debounceMs);
+
+  // Event handlers
+  const handleSearchChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const newValue = e.target.value;
+      setSearchText(newValue);
+      debouncedSetSearch(newValue);
+    },
+    [debouncedSetSearch],
+  );
+
+  const handleModeChange = useCallback(
+    (newMode: SearchMode) => {
+      if (newMode === mode) return;
+
+      void setUrlSearchValue(null);
+      setMode(newMode);
+      setSearchText('');
+      setTimeout(() => inputRef.current?.focus(), 0);
+    },
+    [mode, setMode, setUrlSearchValue],
+  );
+
+  const handleClear = useCallback(() => {
+    setSearchText('');
+    void setUrlSearchValue(null);
+    inputRef.current?.focus();
+  }, [setUrlSearchValue]);
+
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent<HTMLInputElement>) => {
+      if (e.key === 'Escape') {
+        handleClear();
+      }
+    },
+    [handleClear],
+  );
+
+  // Keyboard shortcuts
+  useKeyboardShortcut([
+    {
+      key: 'k',
+      ctrl: true,
+      meta: true,
+      callback: () => inputRef.current?.focus(),
+    },
+  ]);
 
   return (
-    <div className="flex items-center rounded-md border border-gray-100 bg-white px-2 py-1">
-      <div className="flex items-center gap-1 rounded-md bg-gray-50 p-1">
-        {modes.map(({ key, label }) => (
-          <button
-            key={key}
-            type="button"
-            onClick={() => setMode(key)}
-            className={btnClass(mode === key)}
-          >
-            {label}
-          </button>
-        ))}
-      </div>
+    <div
+      className="flex items-center rounded-md border border-gray-100 bg-white px-2 py-1"
+      role="search"
+      aria-label="Trade data search"
+    >
+      <SearchModeToggle currentMode={mode} onModeChange={handleModeChange} />
 
-      <div className="mx-4 flex-1">
-        <div className="relative flex items-center">
-          <SearchIcon className="absolute left-3 h-5 w-5 text-gray-400" />
-          <input
-            type="text"
-            placeholder={placeholders[mode]}
-            className="w-full rounded-lg border-0 py-2.5 pr-20 pl-10 text-sm focus:outline-none"
-          />
-        </div>
-      </div>
+      <SearchInput
+        ref={inputRef}
+        value={searchText}
+        onChange={handleSearchChange}
+        onClear={handleClear}
+        onKeyDown={handleKeyDown}
+        placeholder={currentMode.placeholder}
+        ariaLabel={`${currentMode.label} search input`}
+      />
 
-      <button className="bg-brand hover:bg-brand/80 cursor-pointer rounded-lg px-4 py-2 text-sm font-medium text-white focus:ring-1 focus:ring-gray-200 focus:outline-none">
-        Search
-      </button>
+      <SearchStatusIndicator
+        currentLength={searchText.length}
+        minChars={currentMode.minChars}
+      />
     </div>
   );
 }
