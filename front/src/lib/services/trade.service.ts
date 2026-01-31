@@ -9,23 +9,24 @@ import {
   apiPatch,
   apiDelete,
 } from '../api';
+import type { BackendFilterParams } from '@/src/types/filters';
 
 /**
- * Trade API query parameters
+ * Base query parameters for trade API
  */
-export interface TradeQueryParams {
+export interface TradeBaseParams {
   page?: number;
   page_size?: number;
   ordering?: string;
   search?: string;
-  // Filtering - using Django filter field names
-  date__gte?: string; // date greater than or equal (after)
-  date__lte?: string; // date less than or equal (before)
-  continent?: string | string[]; // can be single value or array
-  country_name?: string | string[]; // can be single value or array
-  flow_label?: string;
-  hs_product_code?: string;
-  // Add more filters as needed
+}
+
+/**
+ * Complete trade API query parameters including filters
+ */
+export interface TradeQueryParams extends TradeBaseParams, BackendFilterParams {
+  // Allow any additional filter params for backwards compatibility
+  [key: string]: string | number | undefined;
 }
 
 /**

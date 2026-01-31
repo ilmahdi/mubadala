@@ -38,8 +38,8 @@ export function DataTableRangeFilter<TData>({
   }, [column]);
 
   const formatValue = React.useCallback(
-    (value: string | number | undefined) => {
-      if (value === undefined || value === '') return '';
+    (value: string | number | null | undefined) => {
+      if (value === undefined || value === null || value === '') return '';
       const numValue = Number(value);
       return Number.isNaN(numValue)
         ? ''
@@ -57,7 +57,6 @@ export function DataTableRangeFilter<TData>({
 
   const onRangeValueChange = React.useCallback(
     (value: string, isMin?: boolean) => {
-      const numValue = Number(value);
       const currentValues = Array.isArray(filter.value)
         ? filter.value
         : ['', ''];
@@ -65,19 +64,12 @@ export function DataTableRangeFilter<TData>({
         ? (currentValues[1] ?? '')
         : (currentValues[0] ?? '');
 
-      if (
-        value === '' ||
-        (!Number.isNaN(numValue) &&
-          (isMin
-            ? numValue >= min && numValue <= (Number(otherValue) || max)
-            : numValue <= max && numValue >= (Number(otherValue) || min)))
-      ) {
-        onFilterUpdate(filter.filterId, {
-          value: isMin ? [value, otherValue] : [otherValue, value],
-        });
-      }
+      // Always update the filter value, let the backend handle validation
+      onFilterUpdate(filter.filterId, {
+        value: isMin ? [value, otherValue] : [otherValue, value],
+      });
     },
-    [filter.filterId, filter.value, min, max, onFilterUpdate],
+    [filter.filterId, filter.value, onFilterUpdate],
   );
 
   return (

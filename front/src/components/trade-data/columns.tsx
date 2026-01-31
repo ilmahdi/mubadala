@@ -181,7 +181,35 @@ export const columns: ColumnDef<TradeRow>[] = [
       <DataTableColumnHeader label="Flow" column={column} title="Flow" />
     ),
     cell: flowCell,
-    meta: { label: 'Flow', variant: 'select', icon: ArrowLeftRight },
+    meta: {
+      label: 'Flow',
+      variant: 'multiSelect',
+      icon: ArrowLeftRight,
+      options: [
+        { label: 'IMP-CAF', value: 'Importations CAF' },
+        { label: 'EXP-FAB', value: 'Exportations FAB' },
+        {
+          label: 'IMP-AT-SP',
+          value:
+            'Importations en admission temporaire pour perfectionnement actif  sans paiement',
+        },
+        {
+          label: 'IMP-AT-AP',
+          value:
+            'Importations en admission temporaire pour perfectionnement actif  avec paiement',
+        },
+        {
+          label: 'REX-AT-AP',
+          value:
+            "Réexportations en suite d'admission temporaire pour perfectionnement actif avec paiement",
+        },
+        {
+          label: 'REX-AT-SP',
+          value:
+            "Réexportations en suite d'admission temporaire pour perfectionnement actif sans paiement",
+        },
+      ],
+    },
     enableColumnFilter: true,
   },
   {
@@ -199,18 +227,17 @@ export const columns: ColumnDef<TradeRow>[] = [
   },
   {
     id: 'date',
-    header: ({ column }) => {
-      column.accessorFn = (row) => `${row.month}-${row.year}`;
-      return (
-        <DataTableColumnHeader label="Date" column={column} title="Date" />
-      );
-    },
+    accessorKey: 'date',
+    header: ({ column }) => (
+      <DataTableColumnHeader label="Date" column={column} title="Date" />
+    ),
     cell: ({ row }) => (
       <span className={styles.muted}>
         {row.original.month}-{row.original.year}
       </span>
     ),
-    meta: { label: 'Date', variant: 'date', icon: Calendar },
+    meta: { label: 'Date', variant: 'dateRange', icon: Calendar },
+    enableColumnFilter: true,
   },
   {
     id: 'continent',
@@ -223,7 +250,18 @@ export const columns: ColumnDef<TradeRow>[] = [
       />
     ),
     cell: textCell(styles.region),
-    meta: { label: 'Continent', variant: 'select', icon: Globe },
+    meta: {
+      label: 'Continent',
+      variant: 'multiSelect',
+      icon: Globe,
+      options: [
+        { label: 'Afrique', value: 'AFRIQUE' },
+        { label: 'Amérique', value: 'AMERIQUE' },
+        { label: 'Asie', value: 'ASIE' },
+        { label: 'Europe', value: 'EUROPE' },
+        { label: 'Océanie', value: 'OCEANIE' },
+      ],
+    },
     enableColumnFilter: true,
   },
   {
@@ -295,8 +333,7 @@ export const columns: ColumnDef<TradeRow>[] = [
       <DataTableColumnHeader label="Usage" column={column} title="Usage" />
     ),
     cell: textCell(styles.label),
-    meta: { label: 'Usage', variant: 'select', icon: Layers },
-    enableColumnFilter: true,
+    meta: { label: 'Usage', variant: 'text', icon: Layers },
   },
   {
     id: 'remarkable_product_code',
@@ -400,8 +437,7 @@ export const columns: ColumnDef<TradeRow>[] = [
       />
     ),
     cell: textCell(styles.label),
-    meta: { label: 'CTCI Group', variant: 'select', icon: Boxes },
-    enableColumnFilter: true,
+    meta: { label: 'CTCI Group', variant: 'text', icon: Boxes },
   },
   {
     id: 'weight_kg',
@@ -427,7 +463,8 @@ export const columns: ColumnDef<TradeRow>[] = [
       />
     ),
     cell: numericCell,
-    meta: { label: 'Value (MAD)', variant: 'number', icon: DollarSign },
+    meta: { label: 'Value (MAD)', variant: 'range', icon: DollarSign },
+    enableColumnFilter: true,
   },
   {
     id: 'supplementary_unit',

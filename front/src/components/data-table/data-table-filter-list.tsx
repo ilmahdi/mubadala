@@ -118,6 +118,12 @@ export function DataTableFilterList<TData>({
   );
   const debouncedSetFilters = useDebouncedCallback(setFilters, debounceMs);
 
+  // Ensure filters is always an array with proper typing
+  const filterList: ExtendedColumnFilter<TData>[] = React.useMemo(
+    () => (Array.isArray(filters) ? filters : []),
+    [filters],
+  );
+
   const [joinOperator, setJoinOperator] = useQueryState(
     table.options.meta?.queryKeys?.joinOperator ?? '',
     parseAsStringEnum(['and', 'or']).withDefault('and').withOptions({
@@ -132,7 +138,7 @@ export function DataTableFilterList<TData>({
     if (!column) return;
 
     debouncedSetFilters([
-      ...filters,
+      ...filterList,
       {
         id: column.id as Extract<keyof TData, string>,
         value: '',
@@ -143,7 +149,7 @@ export function DataTableFilterList<TData>({
         filterId: generateId({ length: 8 }),
       },
     ]);
-  }, [columns, filters, debouncedSetFilters]);
+  }, [columns, filterList, debouncedSetFilters]);
 
   const onFilterUpdate = React.useCallback(
     (
@@ -151,7 +157,12 @@ export function DataTableFilterList<TData>({
       updates: Partial<Omit<ExtendedColumnFilter<TData>, 'filterId'>>,
     ) => {
       debouncedSetFilters((prevFilters) => {
-        const updatedFilters = prevFilters.map((filter) => {
+        const prevList: ExtendedColumnFilter<TData>[] = Array.isArray(
+          prevFilters,
+        )
+          ? prevFilters
+          : [];
+        const updatedFilters = prevList.map((filter) => {
           if (filter.filterId === filterId) {
             return { ...filter, ...updates } as ExtendedColumnFilter<TData>;
           }
@@ -165,7 +176,7 @@ export function DataTableFilterList<TData>({
 
   const onFilterRemove = React.useCallback(
     (filterId: string) => {
-      const updatedFilters = filters.filter(
+      const updatedFilters = filterList.filter(
         (filter) => filter.filterId !== filterId,
       );
       void setFilters(updatedFilters);
@@ -173,7 +184,7 @@ export function DataTableFilterList<TData>({
         addButtonRef.current?.focus();
       });
     },
-    [filters, setFilters],
+    [filterList, setFilters],
   );
 
   const onFiltersReset = React.useCallback(() => {
@@ -210,20 +221,20 @@ export function DataTableFilterList<TData>({
     (event: React.KeyboardEvent<HTMLButtonElement>) => {
       if (
         REMOVE_FILTER_SHORTCUTS.includes(event.key.toLowerCase()) &&
-        filters.length > 0
+        filterList.length > 0
       ) {
         event.preventDefault();
-        onFilterRemove(filters[filters.length - 1]?.filterId ?? '');
+        onFilterRemove(filterList[filterList.length - 1]?.filterId ?? '');
       }
     },
-    [filters, onFilterRemove],
+    [filterList, onFilterRemove],
   );
 
   return (
     <Sortable
-      value={filters}
+      value={filterList}
       onValueChange={setFilters}
-      getItemValue={(item) => item.filterId}
+      getItemValue={(item) => (item as ExtendedColumnFilter<TData>).filterId}
     >
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
@@ -236,12 +247,12 @@ export function DataTableFilterList<TData>({
           >
             <ListFilter className="text-muted-foreground" />
             Filter
-            {filters.length > 0 && (
+            {filterList.length > 0 && (
               <Badge
                 variant="secondary"
                 className="h-[18.24px] rounded-[3.2px] px-[5.12px] font-mono text-[10.4px] font-normal"
               >
-                {filters.length}
+                {filterList.length}
               </Badge>
             )}
           </Button>
@@ -254,27 +265,27 @@ export function DataTableFilterList<TData>({
         >
           <div className="flex flex-col gap-1">
             <h4 id={labelId} className="leading-none font-medium">
-              {filters.length > 0 ? 'Filters' : 'No filters applied'}
+              {filterList.length > 0 ? 'Filters' : 'No filters applied'}
             </h4>
             <p
               id={descriptionId}
               className={cn(
                 'text-muted-foreground text-sm',
-                filters.length > 0 && 'sr-only',
+                filterList.length > 0 && 'sr-only',
               )}
             >
-              {filters.length > 0
+              {filterList.length > 0
                 ? 'Modify filters to refine your rows.'
                 : 'Add filters to refine your rows.'}
             </p>
           </div>
-          {filters.length > 0 ? (
+          {filterList.length > 0 ? (
             <SortableContent asChild>
               <div
                 role="list"
-                className="flex max-h-75 flex-col gap-2 overflow-y-auto p-1"
+                className="flex max-h-75 flex-col gap-2 overflow-y-auto bg-white p-1"
               >
-                {filters.map((filter, index) => (
+                {filterList.map((filter, index) => (
                   <DataTableFilterItem<TData>
                     key={filter.filterId}
                     filter={filter}
@@ -299,7 +310,7 @@ export function DataTableFilterList<TData>({
             >
               Add filter
             </Button>
-            {filters.length > 0 ? (
+            {filterList.length > 0 ? (
               <Button
                 variant="outline"
                 size="sm"
@@ -421,7 +432,7 @@ function DataTableFilterItem<TData>({
               <SelectContent
                 id={joinOperatorListboxId}
                 position="popper"
-                className="min-w-(--radix-select-trigger-width) lowercase"
+                className="min-w-(--radix-select-trigger-width) bg-white lowercase"
               >
                 {dataTableConfig.joinOperators.map((joinOperator) => (
                   <SelectItem key={joinOperator} value={joinOperator}>
@@ -454,7 +465,7 @@ function DataTableFilterItem<TData>({
           <PopoverContent
             id={fieldListboxId}
             align="start"
-            className="w-40 p-0"
+            className="w-40 bg-white p-0"
           >
             <Command>
               <CommandInput placeholder="Search fields..." />
@@ -517,7 +528,7 @@ function DataTableFilterItem<TData>({
               <SelectValue placeholder={filter.operator} />
             </div>
           </SelectTrigger>
-          <SelectContent id={operatorListboxId}>
+          <SelectContent id={operatorListboxId} className="bg-white">
             {filterOperators.map((operator) => (
               <SelectItem
                 key={operator.value}
@@ -644,7 +655,7 @@ function onFilterInputRender<TData>({
         <Select
           open={showValueSelector}
           onOpenChange={setShowValueSelector}
-          value={filter.value}
+          value={typeof filter.value === 'string' ? filter.value : undefined}
           onValueChange={(value) =>
             onFilterUpdate(filter.filterId, {
               value,
@@ -675,7 +686,7 @@ function onFilterInputRender<TData>({
       const multiple = filter.variant === 'multiSelect';
       const selectedValues = multiple
         ? Array.isArray(filter.value)
-          ? filter.value
+          ? filter.value.map(String)
           : []
         : typeof filter.value === 'string'
           ? filter.value
@@ -711,7 +722,7 @@ function onFilterInputRender<TData>({
               />
             </Button>
           </FacetedTrigger>
-          <FacetedContent id={inputListboxId} className="w-50">
+          <FacetedContent id={inputListboxId} className="w-50 bg-white">
             <FacetedInput
               aria-label={`Search ${columnMeta?.label} options`}
               placeholder={columnMeta?.placeholder ?? 'Search options...'}
@@ -783,7 +794,7 @@ function onFilterInputRender<TData>({
           <PopoverContent
             id={inputListboxId}
             align="start"
-            className="w-auto p-0"
+            className="w-auto bg-white p-0"
           >
             {filter.operator === 'isBetween' ? (
               <Calendar

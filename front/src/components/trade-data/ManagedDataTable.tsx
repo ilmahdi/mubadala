@@ -10,6 +10,7 @@ import { DataTableAdvancedToolbar } from '@/src/components/data-table/data-table
 
 import { useDataTable } from '@/src/hooks/use-data-table';
 import type { TradeRow } from './columns';
+import { DataTableFilterList } from '../data-table/data-table-filter-list';
 
 const DISPLAYED_FIELDS = new Set([
   'hs_product_code',
@@ -84,6 +85,7 @@ export function ManagedDataTable({
     >
       <DataTableAdvancedToolbar table={table}>
         <DataTableSortList table={table} />
+        <DataTableFilterList table={table} />
       </DataTableAdvancedToolbar>
     </DataTable>
   );

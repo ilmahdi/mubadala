@@ -1,34 +1,106 @@
 'use client';
 
-import { useEffect, useState, useMemo } from 'react';
-import { useQueryState, parseAsInteger } from 'nuqs';
+import { useEffect, useState, useMemo, useCallback } from 'react';
+import { useQueryState, parseAsInteger, parseAsStringEnum } from 'nuqs';
 import type { TradeRow } from './columns';
 import { getTrades, TradeQueryParams } from '@/src/lib/services/trade.service';
 import { PaginatedResponse } from '@/src/lib/api';
-import { getSortingStateParser } from '@/src/lib/parsers';
+import {
+  getSortingStateParser,
+  getFiltersStateParser,
+} from '@/src/lib/parsers';
+import type {
+  ExtendedColumnFilter,
+  ExtendedColumnSort,
+} from '@/src/types/data-table';
+import type { JoinOperator } from '@/src/types/filters';
+import { buildBackendFilters } from '@/src/lib/filters/filter-builder';
 
+// Constants
+const DEFAULT_PAGE = 1;
+const DEFAULT_PER_PAGE = 10;
+const DEFAULT_JOIN_OPERATOR = 'and';
+const INVALID_PAGE_ERROR = 'invalid page';
+const GENERIC_ERROR_MESSAGE = 'Failed to load trade data';
+
+/**
+ * Options for useTradeData hook
+ */
 interface UseTradeDataOptions {
+  /**
+   * Whether to fetch all data at once (no pagination)
+   * @default false
+   */
   autoFetchAll?: boolean;
-  filters?: TradeQueryParams;
+
+  /**
+   * Additional filters to apply (merged with URL filters)
+   */
+  filters?: Partial<TradeQueryParams>;
 }
 
-export function useTradeData(options: UseTradeDataOptions = {}) {
-  const { autoFetchAll = false, filters } = options;
+/**
+ * Return type for useTradeData hook
+ */
+interface UseTradeDataReturn {
+  data: TradeRow[];
+  loading: boolean;
+  error: string | null;
+  totalCount: number;
+  nextPage: string | null;
+  previousPage: string | null;
+  /** Refresh/refetch the data */
+  refetch: () => void;
+}
 
-  // Read page from URL state
-  const [page] = useQueryState('page', parseAsInteger.withDefault(1));
-  const [perPage] = useQueryState('perPage', parseAsInteger.withDefault(10));
-  const [sorting] = useQueryState(
+/**
+ * Custom hook for fetching and managing trade data.
+ *
+ * Handles pagination, sorting, and filtering state from URL parameters.
+ * Integrates with the backend filter system for advanced filtering.
+ *
+ * @param options - Configuration options
+ * @returns Trade data and loading state
+ *
+ * @example
+ * const { data, loading, error, refetch } = useTradeData({
+ *   filters: { search: 'wheat' }
+ * });
+ */
+export function useTradeData(
+  options: UseTradeDataOptions = {},
+): UseTradeDataReturn {
+  const { filters: additionalFilters } = options;
+
+  // URL state management
+  const [page, setPage] = useQueryState(
+    'page',
+    parseAsInteger.withDefault(DEFAULT_PAGE),
+  );
+  const [perPage] = useQueryState(
+    'perPage',
+    parseAsInteger.withDefault(DEFAULT_PER_PAGE),
+  );
+  const [sorting] = useQueryState<ExtendedColumnSort<TradeRow>[]>(
     'sort',
-    getSortingStateParser<TradeRow>(new Set()).withDefault([]),
+    getSortingStateParser<TradeRow>().withDefault([]),
+  );
+  const [filters_raw] = useQueryState<ExtendedColumnFilter<TradeRow>[]>(
+    'filters',
+    getFiltersStateParser<TradeRow>().withDefault([]),
+  );
+  const [joinOperator] = useQueryState(
+    'joinOperator',
+    parseAsStringEnum(['and', 'or'] as const)
+      .withDefault(DEFAULT_JOIN_OPERATOR)
+      .withOptions({ clearOnDefault: true, shallow: true }),
   );
 
-  // Read filter parameters from URL state
-  const [flowLabel] = useQueryState('flow_label');
-  const [continentFilter] = useQueryState('continent');
-  const [countryFilter] = useQueryState('country_name');
-  const [dateAfter] = useQueryState('date_after');
-  const [dateBefore] = useQueryState('date_before');
+  // Parse and normalize filters from URL state
+  const advancedFilters: ExtendedColumnFilter<TradeRow>[] = useMemo(
+    () => (Array.isArray(filters_raw) ? filters_raw : []),
+    [filters_raw],
+  );
 
   const [data, setData] = useState<TradeRow[]>([]);
   const [loading, setLoading] = useState(true);
@@ -36,88 +108,103 @@ export function useTradeData(options: UseTradeDataOptions = {}) {
   const [totalCount, setTotalCount] = useState(0);
   const [nextPage, setNextPage] = useState<string | null>(null);
   const [previousPage, setPreviousPage] = useState<string | null>(null);
+  const [refetchTrigger, setRefetchTrigger] = useState(0);
+  const [isHydrated, setIsHydrated] = useState(false);
+
+  // Wait for client-side hydration before fetching
+  useEffect(() => {
+    setIsHydrated(true);
+  }, []);
+
+  // Reset to first page when filters change
+  useEffect(() => {
+    if (isHydrated && page !== DEFAULT_PAGE) {
+      void setPage(DEFAULT_PAGE);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [advancedFilters, isHydrated]);
 
   // Convert sorting state to Django ordering format
+  // Django expects: "-date" for descending, "date" for ascending
   const ordering = useMemo(() => {
-    if (!sorting || !Array.isArray(sorting) || sorting.length === 0) {
-      return undefined;
-    }
-
-    // Django expects ordering like: "-date" for descending, "date" for ascending
-    // Multiple sorts are comma-separated: "-date,country_name"
-    return sorting.map((sort) => `${sort.desc ? '-' : ''}${sort.id}`).join(',');
+    if (!sorting?.length) return undefined;
+    return sorting
+      .map(
+        (sort: ExtendedColumnSort<TradeRow>) =>
+          `${sort.desc ? '-' : ''}${sort.id}`,
+      )
+      .join(',');
   }, [sorting]);
 
-  // Stringify filters to create a stable dependency
-  const filtersKey = useMemo(() => JSON.stringify(filters || {}), [filters]);
+  // Convert frontend filters to backend API params
+  const backendFilterParams = useMemo(() => {
+    if (!advancedFilters?.length) return {};
 
-  useEffect(() => {
-    let isMounted = true;
-
-    async function fetchTrades() {
-      try {
-        setLoading(true);
-        setError(null);
-
-        const params: TradeQueryParams = {
-          ...(filters || {}),
-          page,
-          page_size: perPage,
-          ordering,
-          ...(flowLabel && { flow_label: flowLabel }),
-          // Use __in lookup for array filters, otherwise use exact match
-          ...(continentFilter && {
-            [Array.isArray(continentFilter) && continentFilter.length > 0
-              ? 'continent__in'
-              : 'continent']: continentFilter,
-          }),
-          ...(countryFilter && {
-            [Array.isArray(countryFilter) && countryFilter.length > 0
-              ? 'country_name__in'
-              : 'country_name']: countryFilter,
-          }),
-          ...(dateAfter && { date__gte: dateAfter }),
-          ...(dateBefore && { date__lte: dateBefore }),
-        };
-
-        const response: PaginatedResponse<TradeRow> = await getTrades(params);
-
-        if (isMounted) {
-          setData(response.results);
-          setTotalCount(response.count);
-          setNextPage(response.next);
-          setPreviousPage(response.previous);
-        }
-      } catch (err) {
-        if (isMounted) {
-          setError(err instanceof Error ? err.message : 'Failed to load data');
-          console.error('Error fetching trade data:', err);
-        }
-      } finally {
-        if (isMounted) {
-          setLoading(false);
-        }
-      }
+    try {
+      return buildBackendFilters<TradeRow>(
+        advancedFilters,
+        joinOperator as JoinOperator,
+      );
+    } catch (error) {
+      console.error('Failed to build backend filters:', error);
+      return {};
     }
+  }, [advancedFilters, joinOperator]);
 
-    fetchTrades();
+  // Build complete query parameters for API request
+  const queryParams = useMemo(
+    (): TradeQueryParams => ({
+      ...additionalFilters,
+      ...backendFilterParams,
+      page,
+      page_size: perPage,
+      ordering,
+    }),
+    [additionalFilters, backendFilterParams, page, perPage, ordering],
+  );
 
-    return () => {
-      isMounted = false;
-    };
-  }, [
-    page,
-    perPage,
-    ordering,
-    flowLabel,
-    continentFilter,
-    countryFilter,
-    dateAfter,
-    dateBefore,
-    autoFetchAll,
-    filters,
-    filtersKey,
-  ]);
+  // Fetch trade data from API
+  const fetchTrades = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const response: PaginatedResponse<TradeRow> =
+        await getTrades(queryParams);
+
+      setData(response.results);
+      setTotalCount(response.count);
+      setNextPage(response.next);
+      setPreviousPage(response.previous);
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : '';
+
+      // Auto-recover from invalid page errors (e.g., when filters reduce results)
+      if (errorMessage.toLowerCase().includes(INVALID_PAGE_ERROR)) {
+        void setPage(DEFAULT_PAGE);
+        return; // Skip error state, let automatic refetch handle it
+      }
+
+      // Set error state for all other failures
+      setError(errorMessage || GENERIC_ERROR_MESSAGE);
+      console.error('Error fetching trade data:', err);
+    } finally {
+      setLoading(false);
+    }
+  }, [queryParams, setPage]);
+
+  // Effect to fetch data when parameters change
+  useEffect(() => {
+    // Only fetch after hydration to ensure URL params are loaded
+    if (isHydrated) {
+      fetchTrades();
+    }
+  }, [fetchTrades, refetchTrigger, isHydrated]);
+
+  // Refetch function for manual refresh
+  const refetch = useCallback(() => {
+    setRefetchTrigger((prev) => prev + 1);
+  }, []);
 
   return {
     data,
@@ -126,5 +213,6 @@ export function useTradeData(options: UseTradeDataOptions = {}) {
     totalCount,
     nextPage,
     previousPage,
+    refetch,
   };
 }
