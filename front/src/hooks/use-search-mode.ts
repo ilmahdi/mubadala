@@ -1,7 +1,6 @@
 /**
  * Custom hook for managing search mode with localStorage persistence
  */
-
 import { useState } from 'react';
 import {
   SearchMode,
@@ -9,40 +8,34 @@ import {
   isValidSearchMode,
 } from '@/src/lib/search/search-config';
 
-/**
- * Get initial mode from localStorage or use default
- */
-function getInitialMode(): SearchMode {
-  try {
-    const savedMode = localStorage.getItem(SEARCH_CONFIG.storageKey);
-    if (savedMode && isValidSearchMode(savedMode)) {
-      return savedMode;
-    }
-  } catch (error) {
-    console.warn('Failed to load search mode from localStorage:', error);
-  }
-  return SEARCH_CONFIG.defaultMode;
-}
-
-/**
- * Hook to manage search mode with localStorage persistence
- *
- * @returns Current mode and setter function
- *
- * @example
- * const [mode, setMode] = useSearchMode();
- */
 export function useSearchMode() {
-  // Use lazy initializer to load from localStorage only once on mount
-  const [mode, setModeState] = useState<SearchMode>(getInitialMode);
+  // Lazy initializer: runs only in the browser
+  const [mode, setModeState] = useState<SearchMode>(() => {
+    if (typeof window === 'undefined') {
+      // SSR: always use default
+      return SEARCH_CONFIG.defaultMode;
+    }
 
-  // Wrapper to persist mode changes
+    try {
+      const savedMode = localStorage.getItem(SEARCH_CONFIG.storageKey);
+      if (savedMode && isValidSearchMode(savedMode)) {
+        return savedMode as SearchMode;
+      }
+    } catch (error) {
+      console.warn('Failed to load search mode from localStorage:', error);
+    }
+
+    return SEARCH_CONFIG.defaultMode;
+  });
+
   const setMode = (newMode: SearchMode) => {
     setModeState(newMode);
-    try {
-      localStorage.setItem(SEARCH_CONFIG.storageKey, newMode);
-    } catch (error) {
-      console.warn('Failed to save search mode to localStorage:', error);
+    if (typeof window !== 'undefined') {
+      try {
+        localStorage.setItem(SEARCH_CONFIG.storageKey, newMode);
+      } catch (error) {
+        console.warn('Failed to save search mode to localStorage:', error);
+      }
     }
   };
 

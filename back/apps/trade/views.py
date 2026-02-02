@@ -10,6 +10,7 @@ from rest_framework import filters
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.generics import ListAPIView
 from rest_framework.exceptions import ValidationError
+from rest_framework.permissions import AllowAny
 from .models import Trade
 from .serializers import TradeSerializer
 from .filters import TradeFilter
@@ -37,6 +38,7 @@ class TradeListView(ListAPIView):
     serializer_class = TradeSerializer
     pagination_class = TradeCursorPagination
     filterset_class = TradeFilter
+    permission_classes = [AllowAny]
 
     filter_backends = [DjangoFilterBackend, filters.OrderingFilter]
 

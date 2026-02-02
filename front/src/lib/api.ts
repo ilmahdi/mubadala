@@ -1,6 +1,5 @@
 // Use environment variable or fallback to localhost
-export const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000/api';
+export const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL + '/api';
 
 /**
  * Paginated API response structure from Django REST Framework
@@ -21,22 +20,46 @@ export interface ApiError {
 }
 
 /**
- * Fetch options with common headers
+ * Get authentication token from session storage
+ */
+function getAuthToken(): string | null {
+  if (typeof window === 'undefined') return null;
+  return sessionStorage.getItem('auth_token');
+}
+
+/**
+ * Fetch options with common headers including authentication
  */
 function getFetchOptions(options: RequestInit = {}): RequestInit {
+  const headers = new Headers(options.headers);
+
+  headers.set('Content-Type', 'application/json');
+
+  const token = getAuthToken();
+  if (token) {
+    headers.set('Authorization', `Bearer ${token}`);
+  }
+
   return {
     ...options,
-    headers: {
-      'Content-Type': 'application/json',
-      ...options.headers,
-    },
+    headers,
   };
 }
 
 /**
- * Handle API errors with proper error messages
+ * Handle API errors with proper error messages and authentication
  */
 async function handleApiError(response: Response): Promise<never> {
+  // Handle 401 Unauthorized - clear token and redirect to sign in
+  if (response.status === 401) {
+    if (typeof window !== 'undefined') {
+      sessionStorage.removeItem('auth_token');
+      // Optionally redirect to sign-in
+      // window.location.href = '/auth/signin';
+    }
+    throw new Error('Authentication required. Please sign in.');
+  }
+
   let errorMessage = `API request failed: ${response.status} ${response.statusText}`;
 
   try {
