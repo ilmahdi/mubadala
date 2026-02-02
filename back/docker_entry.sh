@@ -15,6 +15,7 @@ wait_for_db() {
 # -------------------------------------------------------------------
 # Startup
 # -------------------------------------------------------------------
+pip install --upgrade pip
 pip install --no-cache-dir -r requirements.txt
 
 wait_for_db

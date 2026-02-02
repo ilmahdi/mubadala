@@ -2,7 +2,7 @@ services:
   mubadala-front:
     build: ./front
     ports:
-      - "3000:3000"
+      - "3003:3000"
     volumes:
       - ./front:/app
     environment:
