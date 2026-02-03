@@ -11,8 +11,8 @@ const poppins = Poppins({
 });
 
 export const metadata: Metadata = {
-  title: 'Jadwa - Trade Management System',
-  description: 'Advanced trade data analysis and management platform',
+  title: 'Mubadala - Trade Data Analysis Platform',
+  description: 'Advanced trade data analysis platform',
 };
 
 export default function RootLayout({

@@ -1,5 +1,6 @@
-import { Settings, Bell, ChartArea } from 'lucide-react';
+import { ChartArea } from 'lucide-react';
 import { colors } from '@/src/config/design-tokens';
+import Link from 'next/link';
 
 export default function Header() {
   return (
@@ -8,27 +9,24 @@ export default function Header() {
       style={{ zIndex: 'var(--z-index-sticky)' }}
     >
       <div className="flex h-14 items-center justify-between px-6">
-        <div className="flex items-center gap-2">
-          <div className="flex h-8 w-8 items-center justify-center rounded text-white">
-            <ChartArea className="text-brand" size={20} strokeWidth={2.4} />
+        <Link href="/" className="-m-1.5 flex items-center gap-2 p-1.5">
+          <div className="flex items-center">
+            <div
+              className="flex h-10 w-10 items-center justify-center"
+              style={{ color: 'var(--color-brand-primary)' }}
+            >
+              <ChartArea className="text-brand" size={24} strokeWidth={2.8} />
+            </div>
+            <h2
+              className="text-xl font-semibold tracking-tight"
+              style={{ color: 'var(--color-text-primary)' }}
+            >
+              Mubadala
+            </h2>
           </div>
-          <h1 className="text-lg font-medium text-gray-900">Mubadala</h1>
-        </div>
+        </Link>
 
         <div className="flex items-center gap-3">
-          <button className="relative rounded-lg p-2 transition-colors hover:bg-gray-100">
-            <Bell className="h-5 w-5 text-gray-800" />
-            <span
-              className="absolute top-2 right-2 h-2 w-2 rounded-full"
-              style={{ backgroundColor: colors.brand.primary }}
-              aria-label="New notifications"
-            />
-          </button>
-
-          <button className="rounded-lg p-2 transition-colors hover:bg-gray-100">
-            <Settings className="h-5 w-5 text-gray-800" />
-          </button>
-
           <button
             className="flex h-7 w-7 items-center justify-center rounded-full text-sm font-medium text-white transition-colors"
             style={{

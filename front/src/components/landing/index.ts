@@ -4,6 +4,7 @@
  */
 
 export { Hero } from './Hero';
+export { DataCoverage } from './DataCoverage';
 export { Features } from './Features';
 export { CTA } from './CTA';
 export { LandingFooter } from './LandingFooter';

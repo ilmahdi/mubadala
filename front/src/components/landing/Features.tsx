@@ -8,115 +8,102 @@
 import {
   Filter,
   Search,
-  TrendingUp,
-  Globe,
-  Calendar,
-  Shield,
-  Zap,
-  BarChart3,
+  PieChart,
+  Download,
+  FileText,
+  Headphones,
 } from 'lucide-react';
 
 const features = [
   {
-    icon: Filter,
-    title: 'Advanced Filtering',
+    Icon: Filter,
+    title: 'Precise Filtering',
     description:
-      'Filter by continent, country, date range, flow type, and more. Build complex queries with ease.',
+      'Filter data by commodity, Origin/Destination country, or specific HS Code chapters.',
   },
   {
-    icon: Search,
-    title: 'Real-time Search',
+    Icon: Search,
+    title: 'Record Search',
     description:
-      'Instant search across all trade data with smart autocomplete and relevance ranking.',
+      'Instantly locate specific transactions or customs declarations within the Moroccan database.',
   },
   {
-    icon: TrendingUp,
-    title: 'Analytics Dashboard',
+    Icon: PieChart,
+    title: 'Visual Analytics',
     description:
-      'Visualize trends, compare regions, and discover insights with interactive charts.',
+      'Interactive charts visualizing market share, volume trends, and value distribution across commodities.',
   },
   {
-    icon: Globe,
-    title: 'Global Coverage',
+    Icon: Download,
+    title: 'Data Export',
     description:
-      'Access trade data from over 200 countries across all continents.',
+      'Download clean, structured datasets in CSV or Excel for your own internal modeling.',
   },
   {
-    icon: Calendar,
-    title: 'Historical Data',
+    Icon: FileText,
+    title: 'Custom Reports',
     description:
-      'Analyze trade patterns over time with comprehensive historical records.',
+      'Generate PDF executive summaries on specific sectors (e.g., Phosphate exports, Citrus imports).',
   },
   {
-    icon: Shield,
-    title: 'Secure & Reliable',
+    Icon: Headphones,
+    title: 'Expert Support',
     description:
-      'Enterprise-grade security with Google OAuth authentication and encrypted data.',
-  },
-  {
-    icon: Zap,
-    title: 'Lightning Fast',
-    description:
-      'Optimized queries and caching ensure instant results even with millions of records.',
-  },
-  {
-    icon: BarChart3,
-    title: 'Export & Share',
-    description:
-      'Export filtered data to CSV or share custom views with shareable URLs.',
+      'Dedicated assistance to help you interpret complex Moroccan customs data fields.',
   },
 ];
 
 export function Features() {
   return (
-    <section id="features" className="bg-white py-24 sm:py-32">
-      <div className="mx-auto max-w-7xl px-6 lg:px-8">
-        {/* Section Header */}
-        <div className="mx-auto max-w-3xl text-center">
-          <h2
-            className="mb-4 text-sm font-semibold tracking-wider uppercase"
-            style={{ color: 'var(--color-brand-primary)' }}
-          >
-            Powerful Features
-          </h2>
-          <p className="mb-6 text-4xl font-extrabold text-gray-900 sm:text-5xl">
-            Everything you need to analyze global trade
-          </p>
-          <p className="mx-auto max-w-2xl text-lg text-gray-600">
-            Our platform provides professional-grade tools for trade analysis,
-            from filtering and search to advanced analytics and exports.
-          </p>
-        </div>
+    <section
+      className="border-t border-gray-100 bg-gray-50 px-6 py-24 lg:px-10"
+      id="features"
+    >
+      <div className="flex w-full justify-center">
+        <div className="flex w-full max-w-300 flex-col gap-12">
+          {/* Section Header */}
+          <div className="flex flex-col items-center gap-2 text-center">
+            <h3 className="text-brand mb-1 text-xs font-bold tracking-[0.15em] uppercase">
+              Features
+            </h3>
+            <h2 className="mt-1 text-3xl font-bold text-gray-900">
+              Platform Capabilities
+            </h2>
+            <p className="mt-3 max-w-xl text-lg text-gray-600">
+              Advanced tools designed for trade analysts, logistics managers,
+              and investors focused on the Moroccan market.
+            </p>
+          </div>
 
-        {/* Features Grid */}
-        <div className="mx-auto mt-20 max-w-7xl">
-          <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
-            {features.map((feature) => {
-              const Icon = feature.icon;
+          {/* Feature Cards Grid */}
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {features.map((feature, index) => {
+              const Icon = feature.Icon;
               return (
                 <div
-                  key={feature.title}
-                  className="group relative overflow-hidden rounded-xl border border-gray-200 bg-white p-8 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-gray-300 hover:shadow-lg"
+                  key={index}
+                  className="group hover:border-brand/30 rounded-xl border border-gray-200 bg-white p-6 transition-all duration-300 hover:shadow-lg"
                 >
-                  <div className="relative">
-                    <div
-                      className="mb-5 inline-flex h-14 w-14 items-center justify-center rounded-xl"
-                      style={{
-                        backgroundColor: 'var(--color-brand-primary-alpha-10)',
-                      }}
-                    >
-                      <Icon
-                        className="h-7 w-7"
-                        style={{ color: 'var(--color-brand-primary)' }}
-                      />
-                    </div>
-                    <h3 className="mb-3 text-xl font-bold text-gray-900">
-                      {feature.title}
-                    </h3>
-                    <p className="text-base leading-relaxed text-gray-600">
-                      {feature.description}
-                    </p>
+                  <div className="group-hover:bg-brand mb-4 flex h-10 w-10 items-center justify-center rounded-lg border border-gray-100 bg-white text-gray-600 shadow-sm transition-colors group-hover:text-white">
+                    <Icon size={20} strokeWidth={2} />
                   </div>
+                  <h3 className="mb-2 text-lg font-bold text-gray-900">
+                    {feature.title}
+                  </h3>
+                  <p className="text-sm leading-relaxed text-gray-600">
+                    {feature.description.split('HS Code').map((part, i, arr) =>
+                      i < arr.length - 1 ? (
+                        <span key={i}>
+                          {part}
+                          <span className="text-brand/80 font-mono text-xs">
+                            HS Code
+                          </span>
+                        </span>
+                      ) : (
+                        part
+                      ),
+                    )}
+                  </p>
                 </div>
               );
             })}

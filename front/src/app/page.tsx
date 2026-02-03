@@ -7,6 +7,7 @@
 
 import {
   Hero,
+  DataCoverage,
   Features,
   CTA,
   LandingFooter,
@@ -19,6 +20,7 @@ export default function Home() {
       <LandingHeader />
       <main>
         <Hero />
+        <DataCoverage />
         <Features />
         <CTA />
       </main>

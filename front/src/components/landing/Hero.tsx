@@ -5,198 +5,90 @@
 
 'use client';
 
-import { ArrowRight, TrendingUp, Globe2, BarChart3 } from 'lucide-react';
-import { SignInButton } from '@/src/components/auth/SignInButton';
-import { useAuth } from '@/src/hooks/use-auth';
 import Link from 'next/link';
+import Image from 'next/image';
+import { useAuth } from '@/src/hooks/use-auth';
+import { ArrowRight, CheckCircle, Lock } from 'lucide-react';
 
 export function Hero() {
-  const { isAuthenticated, isLoading } = useAuth();
+  const { isAuthenticated } = useAuth();
 
   return (
-    <section className="relative overflow-hidden bg-linear-to-br from-slate-50 via-white to-blue-50/30">
-      {/* Animated gradient orbs */}
-      <div className="absolute -top-40 -right-40 h-96 w-96 rounded-full bg-linear-to-br from-red-100/40 to-pink-100/40 blur-3xl" />
-      <div className="absolute -bottom-40 -left-40 h-96 w-96 rounded-full bg-linear-to-br from-blue-100/40 to-purple-100/40 blur-3xl" />
+    <section
+      className="relative flex flex-col items-center justify-center overflow-hidden bg-white px-6 pt-28 pb-20 lg:px-10"
+      id="overview"
+    >
+      {/* Decorative hero image (behind content) */}
+      <div className="pointer-events-none absolute inset-0 z-0">
+        <Image
+          src="/images/morocco-map-hero.png"
+          alt=""
+          fill
+          sizes="100vw"
+          className="object-cover object-top-right opacity-70"
+          priority
+        />
 
-      {/* Grid overlay */}
-      <div
-        className="absolute inset-0 opacity-[0.015]"
-        style={{
-          backgroundImage:
-            'linear-gradient(to right, rgb(17, 24, 39) 1px, transparent 1px), linear-gradient(to bottom, rgb(17, 24, 39) 1px, transparent 1px)',
-          backgroundSize: '64px 64px',
-        }}
-      />
+        {/* dark readability overlay */}
+        <div className="absolute inset-0 bg-white/70" />
 
-      <div className="relative mx-auto max-w-7xl px-6 py-24 sm:py-32 lg:px-8 lg:py-40">
-        <div className="mx-auto max-w-5xl text-center">
-          {/* Badge */}
-          <div className="mb-8 inline-flex items-center gap-2.5 rounded-full border border-gray-200/80 bg-white px-5 py-2.5 shadow-sm ring-1 ring-gray-900/5 backdrop-blur-sm transition-all hover:border-gray-300 hover:shadow-md">
-            <div
-              className="flex h-5 w-5 items-center justify-center rounded-full"
-              style={{ backgroundColor: 'var(--color-brand-primary-alpha-10)' }}
-            >
-              <TrendingUp
-                className="h-3 w-3"
-                style={{ color: 'var(--color-brand-primary)' }}
-              />
-            </div>
-            <span className="text-xs font-semibold tracking-widest text-gray-700 uppercase">
-              Trade Analytics Platform
-            </span>
-          </div>
+        {/* directional gradient */}
+        <div className="absolute inset-0 bg-linear-to-t from-white via-white/70 to-white/70" />
+      </div>
 
-          {/* Headline */}
-          <h1 className="mb-8 text-5xl leading-tight font-extrabold tracking-tight text-gray-900 sm:text-6xl sm:leading-tight lg:text-7xl lg:leading-tight">
-            Unlock Global Trade{' '}
-            <span
-              className="relative inline-block"
-              style={{
-                background:
-                  'linear-gradient(135deg, #dc2626 0%, #ef4444 50%, #f87171 100%)',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                backgroundClip: 'text',
-              }}
-            >
-              Insights
-            </span>
+      {/* Content */}
+      <div className="relative z-10 flex w-full max-w-240 flex-col items-center gap-8 text-center">
+        {/* Badge */}
+        <div className="inline-flex items-center gap-2 rounded-full border border-gray-200 bg-gray-50 px-3 py-1">
+          <span
+            className="h-1.5 w-1.5 rounded-full"
+            style={{ backgroundColor: 'var(--color-brand-primary)' }}
+          />
+          <span className="text-xs font-semibold tracking-wide text-gray-600 uppercase">
+            Morocco&apos;s Premier Trade Intelligence
+          </span>
+        </div>
+
+        {/* Headline */}
+        <div className="flex max-w-4xl flex-col gap-6">
+          <h1 className="text-4xl leading-[1.1] font-bold tracking-tight text-gray-900 md:text-6xl lg:text-7xl">
+            Explore Morocco&apos;s
+            <br />
+            Trade <span className="text-brand">Statistics</span>
           </h1>
-
-          {/* Subheadline */}
-          <p className="mx-auto mb-10 max-w-3xl text-xl leading-relaxed font-normal text-gray-600 sm:text-2xl sm:leading-relaxed">
-            Analyze trade data across continents with powerful filters,
-            real-time search, and comprehensive analytics.
+          <p className="mx-auto max-w-2xl text-lg leading-relaxed font-light text-gray-600 md:text-xl">
+            Navigate comprehensive import & export statistics with ease. Analyze
+            trade records, volume flows, and{' '}
+            <span className="rounded bg-gray-100 px-1 font-mono text-base">
+              HS Code
+            </span>{' '}
+            transactions with a modern interface built for speed.
           </p>
+        </div>
 
-          {/* CTA Buttons */}
-          <div className="flex flex-col items-center justify-center gap-4 sm:flex-row sm:gap-5">
-            {isLoading ? (
-              <div className="h-14 w-56 animate-pulse rounded-xl bg-gray-200" />
-            ) : isAuthenticated ? (
-              <Link
-                href="/dashboard"
-                className="group focus:ring-brand inline-flex h-14 items-center gap-2.5 rounded-xl px-8 py-0 text-base font-bold text-white shadow-xl transition-all hover:shadow-2xl focus:ring-2 focus:ring-offset-2 focus:outline-none"
-                style={{
-                  backgroundColor: 'var(--color-brand-primary)',
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor =
-                    'var(--color-brand-primary-hover)';
-                  e.currentTarget.style.transform = 'translateY(-2px)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor =
-                    'var(--color-brand-primary)';
-                  e.currentTarget.style.transform = 'translateY(0)';
-                }}
-              >
-                Go to Dashboard
-                <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
-              </Link>
-            ) : (
-              <SignInButton
-                className="group relative inline-flex h-14 items-center gap-2.5 overflow-hidden rounded-xl px-9 py-0 text-base font-semibold text-white shadow-lg transition-all hover:-translate-y-0.5 hover:shadow-xl focus:ring-2 focus:ring-red-500/50 focus:ring-offset-2 focus:outline-none"
-                style={{
-                  backgroundColor: 'var(--color-brand-primary)',
-                }}
-                onMouseEnter={(e: React.MouseEvent<HTMLButtonElement>) => {
-                  e.currentTarget.style.backgroundColor =
-                    'var(--color-brand-primary-hover)';
-                }}
-                onMouseLeave={(e: React.MouseEvent<HTMLButtonElement>) => {
-                  e.currentTarget.style.backgroundColor =
-                    'var(--color-brand-primary)';
-                }}
+        {/* CTA Button */}
+        <div className="relative z-10 flex w-full flex-col items-center gap-6 pt-4">
+          <Link
+            href="/dashboard"
+            className="bg-brand hover:bg-brand-dark flex h-14 transform items-center justify-center gap-2 rounded-lg px-10 text-base font-semibold text-white shadow-lg transition-all hover:-translate-y-0.5 hover:shadow-xl"
+          >
+            <span>{isAuthenticated ? 'Go to Dashboard' : 'Get Access'}</span>
+
+            <ArrowRight size={20} strokeWidth={2} />
+          </Link>
+
+          <div className="flex flex-wrap justify-center gap-x-6 gap-y-2 text-xs text-gray-500">
+            <div className="flex items-center gap-2">
+              <CheckCircle
+                className="text-gray-400"
+                size={16}
+                strokeWidth={2}
               />
-            )}
-
-            <a
-              href="#features"
-              className="group inline-flex h-14 items-center gap-2.5 rounded-xl border-2 border-gray-300 bg-white px-9 py-0 text-base font-semibold text-gray-700 shadow-sm transition-all hover:-translate-y-0.5 hover:border-gray-400 hover:shadow-md focus:ring-2 focus:ring-gray-300 focus:ring-offset-2 focus:outline-none"
-              onClick={(e) => {
-                e.preventDefault();
-                document
-                  .getElementById('features')
-                  ?.scrollIntoView({ behavior: 'smooth' });
-              }}
-            >
-              Learn More
-              <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
-            </a>
-          </div>
-
-          {/* Stats */}
-          <div className="mt-20 grid grid-cols-1 gap-6 sm:grid-cols-3 lg:gap-8">
-            <div className="group relative overflow-hidden rounded-2xl border border-gray-200 bg-white p-8 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-gray-300 hover:shadow-lg">
-              <div className="relative">
-                <div
-                  className="mb-5 inline-flex h-14 w-14 items-center justify-center rounded-xl"
-                  style={{
-                    backgroundColor: 'var(--color-brand-primary-alpha-10)',
-                  }}
-                >
-                  <Globe2
-                    className="h-7 w-7"
-                    style={{ color: 'var(--color-brand-primary)' }}
-                  />
-                </div>
-                <div className="mb-2 text-4xl font-bold text-gray-900">
-                  200
-                  <span style={{ color: 'var(--color-brand-primary)' }}>+</span>
-                </div>
-                <div className="text-sm font-medium tracking-wide text-gray-600 uppercase">
-                  Countries Tracked
-                </div>
-              </div>
+              <span>Instant access</span>
             </div>
-
-            <div className="group relative overflow-hidden rounded-2xl border border-gray-200 bg-white p-8 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-gray-300 hover:shadow-lg">
-              <div className="relative">
-                <div
-                  className="mb-5 inline-flex h-14 w-14 items-center justify-center rounded-xl"
-                  style={{
-                    backgroundColor: 'var(--color-brand-primary-alpha-10)',
-                  }}
-                >
-                  <BarChart3
-                    className="h-7 w-7"
-                    style={{ color: 'var(--color-brand-primary)' }}
-                  />
-                </div>
-                <div className="mb-2 text-4xl font-bold text-gray-900">
-                  1M
-                  <span style={{ color: 'var(--color-brand-primary)' }}>+</span>
-                </div>
-                <div className="text-sm font-medium tracking-wide text-gray-600 uppercase">
-                  Trade Records
-                </div>
-              </div>
-            </div>
-
-            <div className="group relative overflow-hidden rounded-2xl border border-gray-200 bg-white p-8 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-gray-300 hover:shadow-lg">
-              <div className="relative">
-                <div
-                  className="mb-5 inline-flex h-14 w-14 items-center justify-center rounded-xl"
-                  style={{
-                    backgroundColor: 'var(--color-brand-primary-alpha-10)',
-                  }}
-                >
-                  <TrendingUp
-                    className="h-7 w-7"
-                    style={{ color: 'var(--color-brand-primary)' }}
-                  />
-                </div>
-                <div className="mb-2 text-4xl font-bold text-gray-900">
-                  Real
-                  <span style={{ color: 'var(--color-brand-primary)' }}>-</span>
-                  time
-                </div>
-                <div className="text-sm font-medium tracking-wide text-gray-600 uppercase">
-                  Data Updates
-                </div>
-              </div>
+            <div className="flex items-center gap-2">
+              <Lock className="text-gray-400" size={16} strokeWidth={2} />
+              <span>Secure login</span>
             </div>
           </div>
         </div>

@@ -5,126 +5,64 @@
 
 'use client';
 
-import { ArrowRight } from 'lucide-react';
-import { SignInButton } from '@/src/components/auth/SignInButton';
-import { useAuth } from '@/src/hooks/use-auth';
 import Link from 'next/link';
+import { useAuth } from '@/src/hooks/use-auth';
+import { ArrowRight, CheckCircle, Lock } from 'lucide-react';
 
 export function CTA() {
-  const { isAuthenticated, isLoading } = useAuth();
+  const { isAuthenticated } = useAuth();
 
   return (
-    <section className="relative overflow-hidden bg-linear-to-br from-slate-900 via-gray-900 to-slate-900">
-      {/* Gradient orbs */}
-      <div className="absolute -top-40 left-1/4 h-96 w-96 rounded-full bg-linear-to-br from-red-900/30 to-pink-900/30 blur-3xl" />
-      <div className="absolute right-1/4 -bottom-40 h-96 w-96 rounded-full bg-linear-to-br from-purple-900/30 to-blue-900/30 blur-3xl" />
+    <section className="relative overflow-hidden bg-white px-6 py-24">
+      <div className="relative z-10 flex justify-center">
+        <div className="relative flex w-full max-w-250 flex-col items-center gap-6 overflow-hidden rounded-2xl border border-gray-200 bg-gray-50 p-10 text-center shadow-[0_8px_30px_rgb(0,0,0,0.04)] md:p-16">
+          {/* Morocco Pattern Background */}
+          <div
+            className="pointer-events-none absolute inset-0 opacity-[0.03]"
+            style={{
+              backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23c1272d' fill-opacity='0.04'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
+            }}
+          />
 
-      {/* Grid pattern */}
-      <div
-        className="absolute inset-0 opacity-[0.03]"
-        style={{
-          backgroundImage:
-            'linear-gradient(to right, white 1px, transparent 1px), linear-gradient(to bottom, white 1px, transparent 1px)',
-          backgroundSize: '64px 64px',
-        }}
-      />
-
-      <div className="relative mx-auto max-w-6xl px-6 py-24 sm:py-32 lg:px-8">
-        <div className="mx-auto max-w-4xl text-center">
-          <h2 className="mb-6 text-5xl leading-tight font-extrabold tracking-tight text-white sm:text-6xl lg:text-7xl">
-            Ready to unlock{' '}
-            <span
-              style={{
-                background:
-                  'linear-gradient(135deg, #fca5a5 0%, #f87171 50%, #ef4444 100%)',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                backgroundClip: 'text',
-              }}
-            >
-              trade insights
+          {/* Content */}
+          <div className="relative z-10 mx-auto flex max-w-2xl flex-col items-center gap-4">
+            <span className="text-brand text-xs font-bold tracking-[0.2em] uppercase">
+              Get Started
             </span>
-            ?
-          </h2>
-          <p className="mb-12 text-xl leading-relaxed text-gray-300 sm:text-2xl">
-            Join thousands of professionals analyzing global trade data.
-            <br className="hidden sm:block" />
-            Get started in seconds with your Google account.
-          </p>
+            <h2 className="text-3xl font-bold tracking-tight text-gray-900 md:text-4xl">
+              Ready to explore Moroccan trade Statistics?
+            </h2>
+            <p className="text-lg leading-relaxed font-light text-gray-600">
+              Gain immediate access to verified import & export records easier
+              and faster than ever.
+            </p>
+          </div>
 
-          {/* CTA Button */}
-          {isLoading ? (
-            <div className="mx-auto h-14 w-64 animate-pulse rounded-xl bg-gray-700" />
-          ) : isAuthenticated ? (
+          {/* CTA */}
+          <div className="relative z-10 flex w-full flex-col items-center gap-6 pt-4">
             <Link
               href="/dashboard"
-              className="group inline-flex items-center gap-2.5 rounded-xl px-10 py-4 text-lg font-semibold shadow-xl transition-all hover:shadow-2xl focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-900 focus:outline-none"
-              style={{
-                backgroundColor: 'var(--color-brand-primary)',
-                color: 'white',
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor =
-                  'var(--color-brand-primary-hover)';
-                e.currentTarget.style.transform = 'translateY(-2px)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor =
-                  'var(--color-brand-primary)';
-                e.currentTarget.style.transform = 'translateY(0)';
-              }}
+              className="bg-brand hover:bg-brand-dark flex h-14 transform items-center justify-center gap-2 rounded-lg px-10 text-base font-bold text-white shadow-lg transition-all hover:-translate-y-0.5"
             >
-              Go to Dashboard
-              <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
+              <span>
+                {isAuthenticated ? 'Go to Dashboard' : 'Get Access Now'}
+              </span>
+              <ArrowRight size={20} strokeWidth={2} />
             </Link>
-          ) : (
-            <SignInButton className="group inline-flex items-center gap-2.5 rounded-xl px-10 py-4 text-lg font-semibold shadow-xl transition-all hover:-translate-y-0.5 hover:shadow-2xl focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-900 focus:outline-none" />
-          )}
 
-          {/* Trust badges */}
-          <div className="mt-12 flex flex-col items-center gap-6">
-            <div className="flex flex-wrap items-center justify-center gap-8 text-base text-gray-300 sm:gap-10">
-              <div className="flex items-center gap-2.5 transition-colors hover:text-white">
-                <svg
-                  className="h-5 w-5"
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-                <span className="font-medium">No credit card required</span>
+            {/* Trust Indicators */}
+            <div className="flex flex-wrap justify-center gap-x-6 gap-y-2 text-sm text-gray-500">
+              <div className="flex items-center gap-2">
+                <CheckCircle
+                  className="text-gray-400"
+                  size={16}
+                  strokeWidth={2}
+                />
+                <span>Instant access</span>
               </div>
-              <div className="flex items-center gap-2 transition-colors hover:text-white">
-                <svg
-                  className="h-5 w-5"
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-                <span className="font-medium">Free access</span>
-              </div>
-              <div className="flex items-center gap-2 transition-colors hover:text-white">
-                <svg
-                  className="h-5 w-5"
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-                <span className="font-medium">Instant setup</span>
+              <div className="flex items-center gap-2">
+                <Lock className="text-gray-400" size={16} strokeWidth={2} />
+                <span>Secure login</span>
               </div>
             </div>
           </div>
