@@ -172,7 +172,7 @@ export function DataTableSortList<TData>({
           <Button
             variant="outline"
             size="sm"
-            className="border-gray-200 font-normal"
+            className="border-gray-200 font-normal shadow-none"
             onKeyDown={onTriggerKeyDown}
             disabled={disabled}
           >
@@ -189,6 +189,7 @@ export function DataTableSortList<TData>({
           </Button>
         </PopoverTrigger>
         <PopoverContent
+          align="start"
           aria-labelledby={labelId}
           aria-describedby={descriptionId}
           className="flex w-full max-w-(--radix-popover-content-available-width) flex-col gap-3.5 border-gray-300 bg-white/80 p-4 shadow-sm backdrop-blur-sm sm:min-w-95"

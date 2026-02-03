@@ -9,7 +9,6 @@ import {
   TableHeader,
   TableRow,
 } from '@/src/components/ui/table';
-import { getColumnPinningStyle } from '@/src/lib/data-table';
 import { cn } from '@/src/lib/utils';
 import { Skeleton } from './data-table-cell-skeleton';
 import { tableStyles } from '@/src/config/component-styles';
@@ -55,9 +54,6 @@ export function DataTable<TData extends { id: string }>({
                   <TableHead
                     key={header.id}
                     colSpan={header.colSpan}
-                    style={{
-                      ...getColumnPinningStyle({ column: header.column }),
-                    }}
                     className={tableStyles.header}
                   >
                     {loading ? (

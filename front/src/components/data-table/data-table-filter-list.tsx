@@ -241,7 +241,7 @@ export function DataTableFilterList<TData>({
           <Button
             variant="outline"
             size="sm"
-            className="border-gray-200 font-normal"
+            className="border-gray-200 font-normal shadow-none"
             onKeyDown={onTriggerKeyDown}
             disabled={disabled}
           >
@@ -258,6 +258,7 @@ export function DataTableFilterList<TData>({
           </Button>
         </PopoverTrigger>
         <PopoverContent
+          align="start"
           aria-describedby={descriptionId}
           aria-labelledby={labelId}
           className="flex w-full max-w-(--radix-popover-content-available-width) flex-col gap-3.5 border-gray-300 bg-white/80 p-4 shadow-sm backdrop-blur-sm sm:min-w-95"

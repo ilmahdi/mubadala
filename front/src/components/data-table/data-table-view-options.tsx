@@ -50,15 +50,15 @@ export function DataTableViewOptions<TData>({
           role="combobox"
           variant="outline"
           size="sm"
-          className="ml-auto hidden h-8 border-gray-200 font-normal lg:flex"
+          className="border-gray-200 font-normal shadow-none"
           disabled={disabled}
         >
-          <Settings2 className="h-4 w-4 text-gray-500" />
+          <Settings2 className="text-muted-foreground" />
           View
         </Button>
       </PopoverTrigger>
       <PopoverContent
-        className="w-44 border-gray-300 bg-white/95 p-0 shadow-md backdrop-blur-sm"
+        className="w-44 border-gray-300 bg-white/80 p-0 shadow-sm backdrop-blur-sm"
         {...props}
       >
         <Command>
