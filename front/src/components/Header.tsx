@@ -15,10 +15,10 @@ export default function Header() {
               className="flex h-10 w-10 items-center justify-center"
               style={{ color: 'var(--color-brand-primary)' }}
             >
-              <ChartArea className="text-brand" size={24} strokeWidth={2.8} />
+              <ChartArea className="text-brand" size={22} strokeWidth={2.8} />
             </div>
             <h2
-              className="text-xl font-semibold tracking-tight"
+              className="text-lg font-semibold tracking-tight"
               style={{ color: 'var(--color-text-primary)' }}
             >
               Mubadala

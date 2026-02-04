@@ -62,7 +62,7 @@ export function LandingHeader() {
             {isAuthenticated ? (
               <Link
                 href="/dashboard"
-                className="border-brand text-brand hover:bg-brand focus:ring-brand/40 rounded-lg border-[1.5px] px-4 py-2 text-sm font-semibold transition-all hover:text-white hover:shadow-md focus:ring-2 focus:outline-none"
+                className="border-brand text-brand hover:bg-brand focus:ring-brand/40 rounded-lg border-[1.5px] px-4 py-2 text-xs font-medium transition-all hover:text-white hover:shadow-md focus:ring-2 focus:outline-none"
               >
                 Go to Dashboard
               </Link>

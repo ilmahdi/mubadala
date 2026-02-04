@@ -8,7 +8,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { useAuth } from '@/src/hooks/use-auth';
-import { ArrowRight, CheckCircle, Lock } from 'lucide-react';
+import { CheckCircle, Lock } from 'lucide-react';
 
 export function Hero() {
   const { isAuthenticated } = useAuth();
@@ -39,7 +39,7 @@ export function Hero() {
       {/* Content */}
       <div className="relative z-10 flex w-full max-w-240 flex-col items-center gap-8 text-center">
         {/* Badge */}
-        <div className="inline-flex items-center gap-2 rounded-full border border-gray-200 bg-gray-50 px-3 py-1">
+        <div className="inline-flex items-center gap-2 rounded-full border border-gray-200 bg-gray-50/10 px-3 py-1">
           <span
             className="h-1.5 w-1.5 rounded-full"
             style={{ backgroundColor: 'var(--color-brand-primary)' }}
@@ -73,8 +73,6 @@ export function Hero() {
             className="bg-brand hover:bg-brand-dark flex h-14 transform items-center justify-center gap-2 rounded-lg px-10 text-base font-semibold text-white shadow-lg transition-all hover:-translate-y-0.5 hover:shadow-xl"
           >
             <span>{isAuthenticated ? 'Go to Dashboard' : 'Get Access'}</span>
-
-            <ArrowRight size={20} strokeWidth={2} />
           </Link>
 
           <div className="flex flex-wrap justify-center gap-x-6 gap-y-2 text-xs text-gray-500">

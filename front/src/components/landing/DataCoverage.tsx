@@ -41,7 +41,7 @@ export function DataCoverage() {
             <h2 className="mt-1 text-3xl font-bold text-gray-900">
               Comprehensive Moroccan Metrics
             </h2>
-            <p className="mt-3 max-w-xl text-sm leading-relaxed text-gray-600">
+            <p className="mt-3 max-w-xl text-lg leading-relaxed text-gray-600">
               Our database tracks millions of records across all major trade
               classifications, ensuring complete market visibility.
             </p>
