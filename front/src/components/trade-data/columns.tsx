@@ -23,8 +23,6 @@ import { CellContext } from '@tanstack/react-table';
 
 export type TradeRow = {
   id: string;
-  year: string;
-  month: string;
   date: string;
   continent: string;
   country_code: string;
@@ -215,9 +213,7 @@ export const columns: ColumnDef<TradeRow>[] = [
       <DataTableColumnHeader label="Date" column={column} title="Date" />
     ),
     cell: ({ row }) => (
-      <span className={styles.muted}>
-        {row.original.month}-{row.original.year}
-      </span>
+      <span className={styles.muted}>{row.original.date}</span>
     ),
     meta: { label: 'Date', variant: 'dateRange', icon: Calendar },
     enableColumnFilter: true,

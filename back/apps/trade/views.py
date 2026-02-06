@@ -52,8 +52,6 @@ class TradeListView(ListAPIView):
         "weight_kg",
         "supplementary_unit",
         "date",
-        "year",
-        "month",
     ]
 
     ordering = ["-date"]

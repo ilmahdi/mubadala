@@ -29,6 +29,7 @@ export function DataTableRowExpanded<TData extends Record<string, unknown>>({
       ))}
 
       <Detail label="Continent" value={(row.continent as string) ?? ''} />
+      <Detail label="Weight (KG)" value={(row.weight_kg as string) || '—'} />
       <Detail
         label="Complementary Unit"
         value={(row.supplementary_unit as string) || '—'}

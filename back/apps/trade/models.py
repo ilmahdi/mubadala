@@ -32,9 +32,6 @@ class Trade(models.Model):
     value_dhs = models.DecimalField(max_digits=20, decimal_places=2, null=True)
     supplementary_unit = models.DecimalField(max_digits=20, decimal_places=2, null=True)
 
-    year = models.SmallIntegerField()
-    month = models.SmallIntegerField()
-
     date = models.DateField()
 
     class Meta:

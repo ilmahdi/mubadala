@@ -33,8 +33,6 @@ class TradeFilter(filters.FilterSet):
             "flow_label": ["iexact", "in"],
             "country_name": ["iexact", "in", "icontains"],
             "continent": ["iexact", "in"],
-            "date": ["exact", "gte", "lte", "year", "month"],
+            "date": ["exact", "gte", "lte"],
             "value_dhs": ["exact", "gte", "lte", "gt", "lt"],
-            "year": ["exact"],
-            "month": ["exact"],
         }

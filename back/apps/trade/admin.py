@@ -8,12 +8,11 @@ class TradeAdmin(admin.ModelAdmin):
         "hs_product_code",
         "hs_product_label",
         "country_name",
-        "year",
-        "month",
+        "date",
         "weight_kg",
         "value_dhs",
     )
-    list_filter = ("year", "month", "continent", "country_name")
+    list_filter = ("date", "continent", "country_name")
     search_fields = ("hs_product_code", "hs_product_label", "country_name")
 
 
