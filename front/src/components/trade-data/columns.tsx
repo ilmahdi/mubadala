@@ -94,7 +94,7 @@ const FLOW_STYLES: Record<string, string> = {
 const styles = {
   code: tableStyles.cellCode,
   label:
-    'text-xs font-medium text-gray-900 first-letter:uppercase lowercase line-clamp-2 leading-snug max-w-[480px] truncate',
+    'text-xs font-medium text-gray-900 first-letter:uppercase lowercase line-clamp-2 leading-snug truncate whitespace-break-spaces', // improve later
   region:
     'text-xs font-medium text-gray-500 first-letter:uppercase lowercase line-clamp-2 leading-snug',
   numeric: tableStyles.cellNumeric,
@@ -112,9 +112,26 @@ export const textCell = (className: string) => {
 export const numericCell = <TData,>({
   getValue,
 }: CellContext<TData, unknown>) => {
+  const raw = getValue();
+
+  if (raw == null || raw === '') {
+    return <span className="text-right text-gray-400">—</span>;
+  }
+
+  const value = Number(raw);
+
+  if (Number.isNaN(value)) {
+    return <span className="text-right text-gray-400">{String(raw)}</span>;
+  }
+
+  const [integer, decimal] = value.toFixed(2).split('.');
+
   return (
     <span className={styles.numeric}>
-      {Number(getValue()).toLocaleString()}
+      <span>{Number(integer).toLocaleString()}</span>
+      {decimal !== '00' && (
+        <span className="text-xs text-gray-500">.{decimal}</span>
+      )}
     </span>
   );
 };
@@ -144,6 +161,7 @@ export const columns: ColumnDef<TradeRow>[] = [
     cell: textCell(styles.code),
     meta: { label: 'HS Code', variant: 'text', icon: Hash },
     enableColumnFilter: true,
+    enableSorting: true,
   },
   {
     id: 'hs_product_label',
@@ -154,6 +172,7 @@ export const columns: ColumnDef<TradeRow>[] = [
     cell: textCell(styles.label),
     meta: { label: 'Product', variant: 'text', icon: Package },
     enableColumnFilter: true,
+    enableSorting: true,
   },
   {
     id: 'flow_label',
@@ -192,6 +211,7 @@ export const columns: ColumnDef<TradeRow>[] = [
       ],
     },
     enableColumnFilter: true,
+    enableSorting: true,
   },
   {
     id: 'flow_code',
@@ -217,6 +237,7 @@ export const columns: ColumnDef<TradeRow>[] = [
     ),
     meta: { label: 'Date', variant: 'dateRange', icon: Calendar },
     enableColumnFilter: true,
+    enableSorting: true,
   },
   {
     id: 'continent',
@@ -242,6 +263,7 @@ export const columns: ColumnDef<TradeRow>[] = [
       ],
     },
     enableColumnFilter: true,
+    enableSorting: true,
   },
   {
     id: 'country_code',
@@ -265,6 +287,7 @@ export const columns: ColumnDef<TradeRow>[] = [
     cell: textCell(styles.region),
     meta: { label: 'Country', variant: 'text', icon: Flag },
     enableColumnFilter: true,
+    enableSorting: true,
   },
   {
     id: 'hs_chapter_code',
@@ -419,19 +442,6 @@ export const columns: ColumnDef<TradeRow>[] = [
     meta: { label: 'CTCI Group', variant: 'text', icon: Boxes },
   },
   {
-    id: 'weight_kg',
-    accessorKey: 'weight_kg',
-    header: ({ column }) => (
-      <DataTableColumnHeader
-        label="Weight (kg)"
-        column={column}
-        title="Weight (kg)"
-      />
-    ),
-    cell: numericCell,
-    meta: { label: 'Weight (kg)', variant: 'number', icon: Scale },
-  },
-  {
     id: 'value_dhs',
     accessorKey: 'value_dhs',
     header: ({ column }) => (
@@ -444,6 +454,21 @@ export const columns: ColumnDef<TradeRow>[] = [
     cell: numericCell,
     meta: { label: 'Value (MAD)', variant: 'range', icon: DollarSign },
     enableColumnFilter: true,
+    enableSorting: true,
+  },
+  {
+    id: 'weight_kg',
+    accessorKey: 'weight_kg',
+    header: ({ column }) => (
+      <DataTableColumnHeader
+        label="Weight (kg)"
+        column={column}
+        title="Weight (kg)"
+      />
+    ),
+    cell: numericCell,
+    meta: { label: 'Weight (kg)', variant: 'number', icon: Scale },
+    enableSorting: true,
   },
   {
     id: 'supplementary_unit',

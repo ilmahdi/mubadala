@@ -33,7 +33,7 @@ export function DataTablePagination<TData>({
   const pageCount = table.getPageCount();
   return (
     <div className="flex flex-col gap-4 px-1 py-1 sm:flex-row sm:items-center sm:justify-between">
-      <p className="text-muted-foreground text-xs font-medium text-gray-600">
+      <p className="text-muted-foreground text-xs font-medium">
         Showing{' '}
         <span className="font-semibold text-gray-900">
           {totalCount === 0 ? 0 : startRow}
@@ -44,6 +44,12 @@ export function DataTablePagination<TData>({
       </p>
 
       <div className="flex flex-wrap items-center gap-3">
+        <div className="text-xs font-medium whitespace-nowrap text-gray-600">
+          Page{' '}
+          <span className="font-semibold text-gray-900">{pageIndex + 1}</span>{' '}
+          of <span className="font-semibold text-gray-900">{pageCount}</span>
+        </div>
+
         <div className="flex items-center gap-1">
           <button
             className="inline-flex h-7 w-7 items-center justify-center rounded border border-gray-300 outline-0 hover:border-gray-400 disabled:opacity-40"
@@ -80,12 +86,6 @@ export function DataTablePagination<TData>({
           >
             <ChevronsRight className="h-4 w-4" />
           </button>
-        </div>
-
-        <div className="text-xs font-medium whitespace-nowrap text-gray-600">
-          Page{' '}
-          <span className="font-semibold text-gray-900">{pageIndex + 1}</span>{' '}
-          of <span className="font-semibold text-gray-900">{pageCount}</span>
         </div>
 
         <Select

@@ -65,9 +65,10 @@ export function DataTableRow<TData extends { id: string }>({
       {/* Expanded row (disabled while loading) */}
       {!loading && isOpen && (
         <TableRow className="border-b bg-gray-50/40 hover:bg-transparent">
+          {/* keep the w-0, it fixes a UI issue */}
           <TableCell
             colSpan={cells.length + 1}
-            className="animate-in fade-in slide-in-from-top-2 px-4 pt-2 pb-4 duration-200"
+            className="animate-in fade-in slide-in-from-top-2 w-0 px-4 pt-2 pb-4 duration-200"
           >
             <DataTableRowExpanded row={row.original} />
           </TableCell>
