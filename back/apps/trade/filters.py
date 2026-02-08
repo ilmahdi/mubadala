@@ -23,16 +23,20 @@ class TradeFilter(filters.FilterSet):
 
     # Standard field filters using django-filter's declarative syntax
     # These handle simple query params like: ?continent=EUROPE&value_dhs__gte=10000
-
     class Meta:
         model = Trade
         fields = {
-            "hs_product_code": ["startswith", "iexact"],
-            "hs_product_label": ["icontains", "iexact"],
-            "hs_chapter_label": ["icontains", "iexact"],
-            "flow_label": ["iexact", "in"],
-            "country_name": ["iexact", "in", "icontains"],
-            "continent": ["iexact", "in"],
+            "hs_product_code": ["exact"],
             "date": ["exact", "gte", "lte"],
-            "value_dhs": ["exact", "gte", "lte", "gt", "lt"],
+            "country_code": ["iexact", "in"],
+            "continent": ["iexact", "in"],
+            "flow_code": ["exact", "in"],
+            "hs_chapter_code": ["startswith", "iexact"],
+            "remarkable_product_code": ["startswith", "iexact"],
+            "usage_group_code": ["startswith", "iexact"],
+            "ctci_section_code": ["startswith", "iexact"],
+            "ctci_division_code": ["startswith", "iexact"],
+            "ctci_group_code": ["startswith", "iexact"],
+            "value_dhs": ["gte", "lte", "gt", "lt"],
+            "weight_kg": ["gte", "lte", "gt", "lt"],
         }

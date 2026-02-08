@@ -15,3 +15,11 @@ export function formatDate(
     return '';
   }
 }
+
+export function toUtcMidnightTimestamp(
+  date: Date | null | undefined,
+): number | null {
+  if (!date) return null;
+
+  return Date.UTC(date.getFullYear(), date.getMonth(), date.getDate());
+}

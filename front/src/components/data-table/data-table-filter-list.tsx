@@ -61,7 +61,7 @@ import {
   getDefaultFilterOperator,
   getFilterOperators,
 } from '@/src/lib/data-table';
-import { formatDate } from '@/src/lib/format';
+import { formatDate, toUtcMidnightTimestamp } from '@/src/lib/format';
 import { generateId } from '@/src/lib/id';
 import { getFiltersStateParser } from '@/src/lib/parsers';
 import { cn } from '@/src/lib/utils';
@@ -466,7 +466,7 @@ function DataTableFilterItem<TData>({
           <PopoverContent
             id={fieldListboxId}
             align="start"
-            className="w-40 bg-white p-0"
+            className="w-48 bg-white p-0"
           >
             <Command>
               <CommandInput placeholder="Search fields..." />
@@ -490,9 +490,7 @@ function DataTableFilterItem<TData>({
                         setShowFieldSelector(false);
                       }}
                     >
-                      <span className="truncate">
-                        {column.columnDef.meta?.label}
-                      </span>
+                      <span className="">{column.columnDef.meta?.label}</span>
                       <Check
                         className={cn(
                           'ml-auto',
@@ -815,13 +813,16 @@ function onFilterInputRender<TData>({
                       }
                 }
                 onSelect={(date) => {
+                  if (!date) return;
+
+                  const fromValue = toUtcMidnightTimestamp(date.from);
+                  const toValue = toUtcMidnightTimestamp(date.to);
+
                   onFilterUpdate(filter.filterId, {
-                    value: date
-                      ? [
-                          (date.from?.getTime() ?? '').toString(),
-                          (date.to?.getTime() ?? '').toString(),
-                        ]
-                      : [],
+                    value: [
+                      fromValue?.toString() ?? '',
+                      toValue?.toString() ?? '',
+                    ],
                   });
                 }}
               />
@@ -835,8 +836,12 @@ function onFilterInputRender<TData>({
                   dateValue[0] ? new Date(Number(dateValue[0])) : undefined
                 }
                 onSelect={(date) => {
+                  if (!date) return;
+
+                  const value = toUtcMidnightTimestamp(date);
+
                   onFilterUpdate(filter.filterId, {
-                    value: (date?.getTime() ?? '').toString(),
+                    value: value?.toString() ?? '',
                   });
                   setShowValueSelector(false);
                 }}

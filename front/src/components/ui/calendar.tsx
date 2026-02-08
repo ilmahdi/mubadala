@@ -29,6 +29,27 @@ function Calendar({
 }) {
   const defaultClassNames = getDefaultClassNames();
 
+  // Ensure the calendar opens on the selected date's month when provided.
+  // `selected` may be a Date, a range object ({from, to}), or an array of dates.
+  type Selected = Date | { from?: Date; to?: Date } | Date[] | undefined;
+
+  // Safe extraction of selected prop
+  const selectedProp = (props as { selected?: Selected }).selected;
+
+  let defaultMonth: Date | undefined;
+
+  if (selectedProp) {
+    if (selectedProp instanceof Date) {
+      defaultMonth = selectedProp;
+    } else if (Array.isArray(selectedProp) && selectedProp.length > 0) {
+      const first = selectedProp[0];
+      if (first instanceof Date) defaultMonth = first;
+    } else if ('from' in selectedProp && selectedProp.from instanceof Date) {
+      defaultMonth = selectedProp.from;
+    } else if ('to' in selectedProp && selectedProp.to instanceof Date) {
+      defaultMonth = selectedProp.to;
+    }
+  }
   return (
     <DayPicker
       showOutsideDays={showOutsideDays}
@@ -44,6 +65,7 @@ function Calendar({
           date.toLocaleString('default', { month: 'short' }),
         ...formatters,
       }}
+      defaultMonth={defaultMonth}
       classNames={{
         root: cn('w-fit', defaultClassNames.root),
         months: cn(

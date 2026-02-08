@@ -94,7 +94,7 @@ const FLOW_STYLES: Record<string, string> = {
 const styles = {
   code: tableStyles.cellCode,
   label:
-    'text-xs font-medium text-gray-900 first-letter:uppercase lowercase line-clamp-2 leading-snug truncate whitespace-break-spaces', // improve later
+    'text-xs font-medium text-gray-900 first-letter:uppercase lowercase line-clamp-1 leading-snug truncate whitespace-break-spaces', // improve later
   region:
     'text-xs font-medium text-gray-500 first-letter:uppercase lowercase line-clamp-2 leading-snug',
   numeric: tableStyles.cellNumeric,
@@ -171,7 +171,6 @@ export const columns: ColumnDef<TradeRow>[] = [
     ),
     cell: textCell(styles.label),
     meta: { label: 'Product', variant: 'text', icon: Package },
-    enableColumnFilter: true,
     enableSorting: true,
   },
   {
@@ -233,7 +232,9 @@ export const columns: ColumnDef<TradeRow>[] = [
       <DataTableColumnHeader label="Date" column={column} title="Date" />
     ),
     cell: ({ row }) => (
-      <span className={styles.muted}>{row.original.date}</span>
+      <span className={styles.muted}>
+        {row.original.date.split('-').slice(0, 2).join('-')}
+      </span>
     ),
     meta: { label: 'Date', variant: 'dateRange', icon: Calendar },
     enableColumnFilter: true,
@@ -301,6 +302,7 @@ export const columns: ColumnDef<TradeRow>[] = [
     ),
     cell: textCell(styles.code),
     meta: { label: 'HS Chapter Code', variant: 'text', icon: Barcode },
+    enableColumnFilter: true,
   },
   {
     id: 'hs_chapter_label',
@@ -327,6 +329,7 @@ export const columns: ColumnDef<TradeRow>[] = [
     ),
     cell: textCell(styles.code),
     meta: { label: 'Usage Code', variant: 'text', icon: Tag },
+    enableColumnFilter: true,
   },
   {
     id: 'usage_group_label',
@@ -349,6 +352,7 @@ export const columns: ColumnDef<TradeRow>[] = [
     ),
     cell: textCell(styles.code),
     meta: { label: 'Remarkable Code', variant: 'text', icon: Box },
+    enableColumnFilter: true,
   },
   {
     id: 'remarkable_product_label',
@@ -375,6 +379,7 @@ export const columns: ColumnDef<TradeRow>[] = [
     ),
     cell: textCell(styles.code),
     meta: { label: 'CTCI Section Code', variant: 'text', icon: Hash },
+    enableColumnFilter: true,
   },
   {
     id: 'ctci_section_label',
@@ -401,6 +406,7 @@ export const columns: ColumnDef<TradeRow>[] = [
     ),
     cell: textCell(styles.code),
     meta: { label: 'CTCI Division Code', variant: 'text', icon: Hash },
+    enableColumnFilter: true,
   },
   {
     id: 'ctci_division_label',
@@ -427,6 +433,7 @@ export const columns: ColumnDef<TradeRow>[] = [
     ),
     cell: textCell(styles.code),
     meta: { label: 'CTCI Group Code', variant: 'text', icon: Hash },
+    enableColumnFilter: true,
   },
   {
     id: 'ctci_group_label',
@@ -468,6 +475,7 @@ export const columns: ColumnDef<TradeRow>[] = [
     ),
     cell: numericCell,
     meta: { label: 'Weight (kg)', variant: 'number', icon: Scale },
+    enableColumnFilter: true,
     enableSorting: true,
   },
   {

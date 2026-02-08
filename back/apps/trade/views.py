@@ -50,43 +50,31 @@ class TradeListView(ListAPIView):
         "flow_label",
         "value_dhs",
         "weight_kg",
-        "supplementary_unit",
         "date",
     ]
 
     ordering = ["-date"]
 
     def get_queryset(self):
-        """
-        Apply filters to queryset.
-
-        Standard django-filter params are applied automatically by DjangoFilterBackend.
-        Advanced 'filters' JSON parameter requires manual Q object construction.
-        """
         queryset = super().get_queryset()
 
-        # Check for advanced composite filters
+        # --- Step 2a: Standard filters from django-filter ---
+        # Handled automatically by DjangoFilterBackend
+
+        # --- Step 2b: Advanced 'filters' JSON param ---
         filters_param = self.request.query_params.get("filters")
-        if not filters_param:
-            return queryset
-
-        try:
-            # Parse and validate filter JSON
-            filter_data = parse_filters_from_query_params(self.request.query_params)
-            filters_list = filter_data.get("filters", [])
-            join_operator = filter_data.get("joinOperator", "and")
-
-            # Build and apply Q object
-            if filters_list:
-                filter_q = build_filter_q(filters_list, join_operator)
-                if filter_q:
-                    queryset = queryset.filter(filter_q)
-
-        except ValidationError:
-            # Re-raise validation errors for proper 400 response
-            raise
-        except Exception as e:
-            # Log unexpected errors but don't fail the request
-            logger.error(f"Error processing filters: {e}", exc_info=True)
+        if filters_param:
+            try:
+                filter_data = parse_filters_from_query_params(self.request.query_params)
+                filters_list = filter_data.get("filters", [])
+                join_operator = filter_data.get("joinOperator", "and")
+                if filters_list:
+                    filter_q = build_filter_q(filters_list, join_operator)
+                    if filter_q:
+                        queryset = queryset.filter(filter_q)
+            except ValidationError:
+                raise
+            except Exception as e:
+                logger.error(f"Error processing filters: {e}", exc_info=True)
 
         return queryset
