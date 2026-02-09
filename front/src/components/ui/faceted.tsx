@@ -173,7 +173,7 @@ function FacetedBadgeList(props: FacetedBadgeListProps) {
   return (
     <div
       {...badgeListProps}
-      className={cn('flex flex-wrap items-center gap-1', className)}
+      className={cn('flex w-full min-w-0 items-center gap-1', className)}
     >
       {values.length > max ? (
         <Badge
@@ -187,7 +187,7 @@ function FacetedBadgeList(props: FacetedBadgeListProps) {
           <Badge
             key={value}
             variant="secondary"
-            className={cn('rounded-sm px-1 font-normal', badgeClassName)}
+            className={cn('shrink rounded-sm px-1 font-normal', badgeClassName)}
           >
             <span className="truncate">{getLabel(value)}</span>
           </Badge>

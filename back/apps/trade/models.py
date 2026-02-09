@@ -46,3 +46,29 @@ class ProcessedFile(models.Model):
     class Meta:
         db_table = "processed_files"
         managed = False
+
+
+class Country(models.Model):
+    country_name = models.CharField(max_length=255)
+    country_code = models.CharField(max_length=10, unique=True)
+
+    class Meta:
+        db_table = "countries"
+        managed = False
+        ordering = ["country_name"]
+
+    def __str__(self):
+        return self.country_name
+
+
+class Flow(models.Model):
+    flow_label = models.CharField(max_length=255)
+    flow_code = models.CharField(max_length=10, unique=True)
+
+    class Meta:
+        db_table = "flows"
+        managed = False
+        ordering = ["flow_label"]
+
+    def __str__(self):
+        return self.flow_label

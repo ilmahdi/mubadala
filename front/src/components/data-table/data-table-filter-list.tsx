@@ -540,7 +540,7 @@ function DataTableFilterItem<TData>({
           </SelectContent>
         </Select>
         <div className="max-w-60 min-w-36 flex-1">
-          {onFilterInputRender({
+          {FilterInputRender({
             filter,
             inputId,
             column,
@@ -569,7 +569,7 @@ function DataTableFilterItem<TData>({
   );
 }
 
-function onFilterInputRender<TData>({
+function FilterInputRender<TData>({
   filter,
   inputId,
   column,
@@ -589,6 +589,39 @@ function onFilterInputRender<TData>({
   showValueSelector: boolean;
   setShowValueSelector: (value: boolean) => void;
 }) {
+  // Handle async fetchOptions for select/multiSelect variants
+  const [options, setOptions] = React.useState(columnMeta?.options ?? []);
+  const [isLoadingOptions, setIsLoadingOptions] = React.useState(false);
+  const [optionsError, setOptionsError] = React.useState<string | null>(null);
+
+  React.useEffect(() => {
+    // Only fetch if variant is select/multiSelect
+    if (filter.variant === 'select' || filter.variant === 'multiSelect') {
+      const fetchOptions = columnMeta?.fetchOptions;
+      if (fetchOptions) {
+        setIsLoadingOptions(true);
+        setOptionsError(null);
+        fetchOptions()
+          .then((fetchedOptions) => {
+            setOptions(fetchedOptions);
+            setIsLoadingOptions(false);
+          })
+          .catch((error) => {
+            console.error('Failed to fetch options:', error);
+            setOptionsError('Failed to load options');
+            setIsLoadingOptions(false);
+          });
+      } else if (columnMeta?.options) {
+        setOptions(columnMeta.options);
+      }
+    }
+  }, [
+    filter.id,
+    filter.variant,
+    columnMeta?.fetchOptions,
+    columnMeta?.options,
+  ]);
+
   if (filter.operator === 'isEmpty' || filter.operator === 'isNotEmpty') {
     return (
       <div
@@ -713,7 +746,7 @@ function onFilterInputRender<TData>({
               className="w-full rounded font-normal"
             >
               <FacetedBadgeList
-                options={columnMeta?.options}
+                options={options}
                 placeholder={
                   columnMeta?.placeholder ??
                   `Select option${multiple ? 's' : ''}...`
@@ -727,20 +760,32 @@ function onFilterInputRender<TData>({
               placeholder={columnMeta?.placeholder ?? 'Search options...'}
             />
             <FacetedList>
-              <FacetedEmpty>No options found.</FacetedEmpty>
-              <FacetedGroup>
-                {columnMeta?.options?.map((option) => (
-                  <FacetedItem key={option.value} value={option.value}>
-                    {option.icon && <option.icon />}
-                    <span>{option.label}</span>
-                    {option.count && (
-                      <span className="ml-auto font-mono text-xs">
-                        {option.count}
-                      </span>
-                    )}
-                  </FacetedItem>
-                ))}
-              </FacetedGroup>
+              {isLoadingOptions ? (
+                <div className="flex items-center justify-center py-6 text-sm text-gray-500">
+                  Loading options...
+                </div>
+              ) : optionsError ? (
+                <div className="flex items-center justify-center py-6 text-sm text-red-500">
+                  {optionsError}
+                </div>
+              ) : (
+                <>
+                  <FacetedEmpty>No options found.</FacetedEmpty>
+                  <FacetedGroup>
+                    {options?.map((option) => (
+                      <FacetedItem key={option.value} value={option.value}>
+                        {option.icon && <option.icon />}
+                        <span>{option.label}</span>
+                        {option.count && (
+                          <span className="ml-auto font-mono text-xs">
+                            {option.count}
+                          </span>
+                        )}
+                      </FacetedItem>
+                    ))}
+                  </FacetedGroup>
+                </>
+              )}
             </FacetedList>
           </FacetedContent>
         </Faceted>

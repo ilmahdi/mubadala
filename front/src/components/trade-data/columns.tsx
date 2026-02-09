@@ -1,4 +1,4 @@
-'use client';
+// 'use client';
 
 import { ColumnDef } from '@tanstack/react-table';
 import {
@@ -18,6 +18,10 @@ import {
 } from 'lucide-react';
 
 import { DataTableColumnHeader } from '../data-table/data-table-column-header';
+import {
+  getCountries,
+  countriesToOptions,
+} from '@/src/lib/services/country.service';
 import { cn } from '@/src/lib/utils';
 import { CellContext } from '@tanstack/react-table';
 
@@ -77,6 +81,7 @@ export const FLOW_LABELS = {
 } as const;
 
 import { flowBadgeStyles, tableStyles } from '@/src/config/component-styles';
+import { flowsToOptions, getFlows } from '@/src/lib/services/flows.service';
 
 const FLOW_STYLES: Record<string, string> = {
   'Importations CAF': flowBadgeStyles.import,
@@ -180,37 +185,6 @@ export const columns: ColumnDef<TradeRow>[] = [
       <DataTableColumnHeader label="Flow" column={column} title="Flow" />
     ),
     cell: flowCell,
-    meta: {
-      label: 'Flow',
-      variant: 'multiSelect',
-      icon: ArrowLeftRight,
-      options: [
-        { label: 'IMP-CAF', value: 'Importations CAF' },
-        { label: 'EXP-FAB', value: 'Exportations FAB' },
-        {
-          label: 'IMP-AT-SP',
-          value:
-            'Importations en admission temporaire pour perfectionnement actif  sans paiement',
-        },
-        {
-          label: 'IMP-AT-AP',
-          value:
-            'Importations en admission temporaire pour perfectionnement actif  avec paiement',
-        },
-        {
-          label: 'REX-AT-AP',
-          value:
-            "Réexportations en suite d'admission temporaire pour perfectionnement actif avec paiement",
-        },
-        {
-          label: 'REX-AT-SP',
-          value:
-            "Réexportations en suite d'admission temporaire pour perfectionnement actif sans paiement",
-        },
-      ],
-    },
-    enableColumnFilter: true,
-    enableSorting: true,
   },
   {
     id: 'flow_code',
@@ -223,7 +197,17 @@ export const columns: ColumnDef<TradeRow>[] = [
       />
     ),
     cell: textCell(styles.code),
-    meta: { label: 'Flow Code', variant: 'text', icon: Hash },
+    meta: {
+      label: 'Flow',
+      variant: 'multiSelect',
+      icon: ArrowLeftRight,
+      fetchOptions: async () => {
+        const flows = await getFlows();
+        return flowsToOptions(flows);
+      },
+    },
+    enableColumnFilter: true,
+    enableSorting: true,
   },
   {
     id: 'date',
@@ -260,7 +244,8 @@ export const columns: ColumnDef<TradeRow>[] = [
         { label: 'Amérique', value: 'AMERIQUE' },
         { label: 'Asie', value: 'ASIE' },
         { label: 'Europe', value: 'EUROPE' },
-        { label: 'Océanie', value: 'OCEANIE' },
+        { label: 'Australie', value: 'AUSTRALIE' },
+        { label: 'Autre', value: 'AUTRE' },
       ],
     },
     enableColumnFilter: true,
@@ -277,7 +262,16 @@ export const columns: ColumnDef<TradeRow>[] = [
       />
     ),
     cell: textCell(styles.code),
-    meta: { label: 'Country Code', variant: 'text', icon: Flag },
+    meta: {
+      label: 'Country',
+      variant: 'multiSelect',
+      icon: Flag,
+      fetchOptions: async () => {
+        const countries = await getCountries();
+        return countriesToOptions(countries);
+      },
+    },
+    enableColumnFilter: true,
   },
   {
     id: 'country_name',
@@ -286,8 +280,6 @@ export const columns: ColumnDef<TradeRow>[] = [
       <DataTableColumnHeader label="Country" column={column} title="Country" />
     ),
     cell: textCell(styles.region),
-    meta: { label: 'Country', variant: 'text', icon: Flag },
-    enableColumnFilter: true,
     enableSorting: true,
   },
   {

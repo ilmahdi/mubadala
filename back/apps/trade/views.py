@@ -11,8 +11,8 @@ from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.generics import ListAPIView
 from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import AllowAny
-from .models import Trade
-from .serializers import TradeSerializer
+from .models import Country, Flow, Trade
+from .serializers import CountrySerializer, FlowSerializer, TradeSerializer
 from .filters import TradeFilter
 from .pagination import TradeCursorPagination
 from .filter_utils import build_filter_q
@@ -47,7 +47,7 @@ class TradeListView(ListAPIView):
         "hs_product_label",
         "country_name",
         "continent",
-        "flow_label",
+        "flow_code",
         "value_dhs",
         "weight_kg",
         "date",
@@ -78,3 +78,15 @@ class TradeListView(ListAPIView):
                 logger.error(f"Error processing filters: {e}", exc_info=True)
 
         return queryset
+
+
+class CountryListAPIView(ListAPIView):
+    queryset = Country.objects.all()
+    serializer_class = CountrySerializer
+    permission_classes = [AllowAny]
+
+
+class FlowListAPIView(ListAPIView):
+    queryset = Flow.objects.all()
+    serializer_class = FlowSerializer
+    permission_classes = [AllowAny]

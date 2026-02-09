@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Trade
+from .models import Country, Flow, Trade
 
 
 class DynamicFieldsModelSerializer(serializers.ModelSerializer):
@@ -25,3 +25,15 @@ class TradeSerializer(DynamicFieldsModelSerializer):
     class Meta:
         model = Trade
         fields = "__all__"
+
+
+class CountrySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Country
+        fields = ["country_name", "country_code"]
+
+
+class FlowSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Flow
+        fields = ["flow_label", "flow_code"]

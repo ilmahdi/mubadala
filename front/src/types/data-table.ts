@@ -13,6 +13,7 @@ declare module '@tanstack/react-table' {
     placeholder?: string;
     variant?: FilterVariant;
     options?: Option[];
+    fetchOptions?: () => Promise<Option[]>;
     range?: [number, number];
     unit?: string;
     icon?: React.FC<React.SVGProps<SVGSVGElement>>;
