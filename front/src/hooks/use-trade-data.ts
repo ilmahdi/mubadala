@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useMemo, useCallback } from 'react';
 import { useQueryState, parseAsInteger, parseAsStringEnum } from 'nuqs';
-import type { TradeRow } from './columns';
+import type { TradeRow } from '../components/trade-data/columns';
 import { getTrades, TradeQueryParams } from '@/src/lib/services/trade.service';
 import { PaginatedResponse } from '@/src/lib/api';
 import {

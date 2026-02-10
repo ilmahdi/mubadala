@@ -84,14 +84,14 @@ export const badgeStyles = {
  * Flow Type Badge Styles (Trade-specific)
  */
 export const flowBadgeStyles = {
-  base: 'inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium border',
+  base: 'inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium border lowercase',
 
-  import: 'text-rose-700 bg-rose-50 border-rose-100',
-  export: 'text-emerald-700 bg-emerald-50 border-emerald-100',
-  tempWithout: 'text-amber-700 bg-amber-50 border-amber-100',
-  tempWith: 'text-orange-700 bg-orange-50 border-orange-100',
-  reexportWith: 'text-purple-700 bg-purple-50 border-purple-100',
-  reexportWithout: 'text-blue-700 bg-blue-50 border-blue-100',
+  import: 'text-rose-700 bg-rose-50 border-rose-100/50',
+  export: 'text-emerald-700 bg-emerald-50 border-emerald-100/50',
+  tempWithout: 'text-amber-700 bg-amber-50 border-amber-100/50',
+  tempWith: 'text-orange-700 bg-orange-50 border-orange-100/50',
+  reexportWith: 'text-purple-700 bg-purple-50 border-purple-100/50',
+  reexportWithout: 'text-blue-700 bg-blue-50 border-blue-100/50',
   default: 'text-gray-700 bg-gray-50 border-gray-200',
 } as const;
 

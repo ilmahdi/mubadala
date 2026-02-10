@@ -2,12 +2,12 @@
 
 import { columns } from './columns';
 import { ManagedDataTable } from './ManagedDataTable';
-import { useTradeData } from './useTradeData';
+import { useTradeData } from '../../hooks/use-trade-data';
 import { NuqsAdapter } from 'nuqs/adapters/next/app';
 
 export default function TradeDataTable() {
   return (
-    <div className="flex h-full flex-col rounded-md bg-white">
+    <div className="bg-background flex h-full flex-col rounded-md">
       <div className="flex-1 overflow-auto rounded-sm border-0 border-gray-100">
         <NuqsAdapter>
           <TradeDataTableContent />

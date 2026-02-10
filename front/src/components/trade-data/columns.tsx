@@ -99,7 +99,7 @@ const FLOW_STYLES: Record<string, string> = {
 const styles = {
   code: tableStyles.cellCode,
   label:
-    'text-xs font-medium text-gray-900 first-letter:uppercase lowercase line-clamp-1 leading-snug truncate whitespace-break-spaces', // improve later
+    'text-xs font-medium text-gray-800 first-letter:uppercase lowercase line-clamp-1 leading-snug truncate whitespace-break-spaces', // improve later
   region:
     'text-xs font-medium text-gray-500 first-letter:uppercase lowercase line-clamp-2 leading-snug',
   numeric: tableStyles.cellNumeric,
@@ -185,6 +185,7 @@ export const columns: ColumnDef<TradeRow>[] = [
       <DataTableColumnHeader label="Flow" column={column} title="Flow" />
     ),
     cell: flowCell,
+    meta: { label: 'Flow', variant: 'multiSelect', icon: ArrowLeftRight },
   },
   {
     id: 'flow_code',
@@ -198,7 +199,7 @@ export const columns: ColumnDef<TradeRow>[] = [
     ),
     cell: textCell(styles.code),
     meta: {
-      label: 'Flow',
+      label: 'Flow Code',
       variant: 'multiSelect',
       icon: ArrowLeftRight,
       fetchOptions: async () => {
@@ -263,7 +264,7 @@ export const columns: ColumnDef<TradeRow>[] = [
     ),
     cell: textCell(styles.code),
     meta: {
-      label: 'Country',
+      label: 'Country Code',
       variant: 'multiSelect',
       icon: Flag,
       fetchOptions: async () => {
@@ -280,6 +281,7 @@ export const columns: ColumnDef<TradeRow>[] = [
       <DataTableColumnHeader label="Country" column={column} title="Country" />
     ),
     cell: textCell(styles.region),
+    meta: { label: 'Country', variant: 'text', icon: Flag },
     enableSorting: true,
   },
   {
