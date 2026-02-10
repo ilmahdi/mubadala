@@ -4,11 +4,12 @@ import { columns } from './columns';
 import { ManagedDataTable } from './ManagedDataTable';
 import { useTradeData } from '../../hooks/use-trade-data';
 import { NuqsAdapter } from 'nuqs/adapters/next/app';
+import { textStyles } from '@/src/config/component-styles';
 
 export default function TradeDataTable() {
   return (
-    <div className="bg-background flex h-full flex-col rounded-md">
-      <div className="flex-1 overflow-auto rounded-sm border-0 border-gray-100">
+    <div>
+      <div className="flex-1 overflow-auto rounded-sm">
         <NuqsAdapter>
           <TradeDataTableContent />
         </NuqsAdapter>
@@ -36,8 +37,8 @@ function TradeDataTableContent() {
 
 function ErrorState({ message }: { message: string }) {
   return (
-    <div className="flex h-full items-center justify-center text-xs text-red-500">
-      {message}
+    <div className="flex h-full items-center justify-center">
+      <p className={textStyles.error}>{message}</p>
     </div>
   );
 }

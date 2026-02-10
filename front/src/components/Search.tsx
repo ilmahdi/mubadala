@@ -13,6 +13,7 @@ import {
 import { SearchModeToggle } from '@/src/components/search/SearchModeToggle';
 import { SearchInput } from '@/src/components/search/SearchInput';
 import { SearchStatusIndicator } from '@/src/components/search/SearchStatusIndicator';
+import { searchStyles } from '@/src/config/component-styles';
 
 /**
  * Main search component with backend integration.
@@ -100,7 +101,7 @@ export default function Search() {
 
   return (
     <div
-      className="flex items-center rounded-md border border-gray-100 bg-white px-3 py-1 transition-colors focus-within:border-gray-200 focus-within:ring-0"
+      className={searchStyles.container}
       role="search"
       aria-label="Trade data search"
     >

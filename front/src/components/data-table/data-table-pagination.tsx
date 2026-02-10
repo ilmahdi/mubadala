@@ -13,6 +13,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/src/components/ui/select';
+import { paginationStyles } from '@/src/config/component-styles';
 
 interface DataTablePaginationProps<TData> extends React.ComponentProps<'div'> {
   table: Table<TData>;
@@ -32,27 +33,26 @@ export function DataTablePagination<TData>({
 
   const pageCount = table.getPageCount();
   return (
-    <div className="flex flex-col gap-4 px-1 py-1 sm:flex-row sm:items-center sm:justify-between">
-      <p className="text-muted-foreground text-xs font-medium">
+    <div className={paginationStyles.container}>
+      <p className={paginationStyles.text}>
         Showing{' '}
-        <span className="font-semibold text-gray-900">
+        <span className={paginationStyles.textBold}>
           {totalCount === 0 ? 0 : startRow}
         </span>
-        –<span className="font-semibold text-gray-900">{endRow}</span> of{' '}
-        <span className="font-semibold text-gray-900">{totalCount}</span>{' '}
-        results
+        –<span className={paginationStyles.textBold}>{endRow}</span> of{' '}
+        <span className={paginationStyles.textBold}>{totalCount}</span> results
       </p>
 
-      <div className="flex flex-wrap items-center gap-3">
-        <div className="text-xs font-medium whitespace-nowrap text-gray-600">
+      <div className={paginationStyles.controls}>
+        <div className={paginationStyles.pageInfo}>
           Page{' '}
-          <span className="font-semibold text-gray-900">{pageIndex + 1}</span>{' '}
-          of <span className="font-semibold text-gray-900">{pageCount}</span>
+          <span className={paginationStyles.textBold}>{pageIndex + 1}</span> of{' '}
+          <span className={paginationStyles.textBold}>{pageCount}</span>
         </div>
 
-        <div className="flex items-center gap-1">
+        <div className={paginationStyles.buttonGroup}>
           <button
-            className="inline-flex h-7 w-7 items-center justify-center rounded border border-gray-300 outline-0 hover:border-gray-400 disabled:opacity-40"
+            className={paginationStyles.button}
             onClick={() => table.setPageIndex(0)}
             disabled={!table.getCanPreviousPage()}
             aria-label="First page"
@@ -61,7 +61,7 @@ export function DataTablePagination<TData>({
           </button>
 
           <button
-            className="inline-flex h-7 w-7 items-center justify-center rounded border border-gray-300 outline-0 hover:border-gray-400 disabled:opacity-40"
+            className={paginationStyles.button}
             onClick={() => table.previousPage()}
             disabled={!table.getCanPreviousPage()}
             aria-label="Previous page"
@@ -70,7 +70,7 @@ export function DataTablePagination<TData>({
           </button>
 
           <button
-            className="inline-flex h-7 w-7 items-center justify-center rounded border border-gray-300 outline-0 hover:border-gray-400 disabled:opacity-40"
+            className={paginationStyles.button}
             onClick={() => table.nextPage()}
             disabled={!table.getCanNextPage()}
             aria-label="Next page"
@@ -79,7 +79,7 @@ export function DataTablePagination<TData>({
           </button>
 
           <button
-            className="inline-flex h-7 w-7 items-center justify-center rounded border border-gray-300 outline-0 hover:border-gray-400 disabled:opacity-40"
+            className={paginationStyles.button}
             onClick={() => table.setPageIndex(pageCount - 1)}
             disabled={!table.getCanNextPage()}
             aria-label="Last page"

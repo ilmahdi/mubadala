@@ -52,7 +52,7 @@ export const SearchInput = memo(
               className={cn(
                 'absolute right-3 rounded-sm p-0.5',
                 'text-gray-400 hover:text-gray-600',
-                'transition-colors focus:outline-none',
+                'transition-colors focus-visible:ring-2 focus-visible:ring-gray-900/20 focus-visible:outline-none',
               )}
               aria-label="Clear search"
             >

@@ -23,7 +23,7 @@ export const cardStyles = {
   elevated: 'rounded-lg border border-gray-200 bg-white p-6 shadow-md',
   interactive:
     'rounded-md border border-gray-200 bg-white p-4 shadow-sm transition-all hover:shadow-md hover:border-gray-300',
-  flat: 'rounded-md bg-gray-50 p-4',
+  flat: 'rounded-md',
 } as const;
 
 /**
@@ -244,9 +244,49 @@ export const filterStyles = {
  */
 export const searchStyles = {
   container:
-    'flex items-center rounded-md border border-gray-100 bg-white px-3 py-2 transition-colors focus-within:border-brand focus-within:ring-2 focus-within:ring-gray-900/20',
+    'flex items-center rounded-md border border-gray-100 bg-white px-3 py-1 transition-colors focus-within:border-gray-200 focus-within:ring-2 focus-within:ring-gray-100',
   input: 'flex-1 bg-transparent text-sm outline-none placeholder:text-gray-400',
   icon: 'text-gray-400 h-4 w-4',
+} as const;
+
+/**
+ * Pagination Styles
+ */
+export const paginationStyles = {
+  container:
+    'flex flex-col gap-4 px-1 py-1 sm:flex-row sm:items-center sm:justify-between',
+  text: 'text-xs font-medium text-gray-600',
+  textBold: 'font-semibold text-gray-900',
+  button:
+    'inline-flex h-7 w-7 items-center justify-center rounded border border-gray-300 outline-0 transition-colors hover:border-gray-400 disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-900/20 focus-visible:border-brand',
+  buttonGroup: 'flex items-center gap-1',
+  controls: 'flex flex-wrap items-center gap-3',
+  pageInfo: 'text-xs font-medium whitespace-nowrap text-gray-600',
+} as const;
+
+/**
+ * Header Styles
+ */
+export const headerStyles = {
+  container: 'sticky top-0 border border-gray-100 bg-white shadow-xs',
+  inner: 'flex h-14 items-center justify-between px-6',
+  logo: 'flex items-center gap-2',
+  logoIcon: 'flex h-10 w-10 items-center justify-center text-brand',
+  logoText: 'text-lg font-semibold tracking-tight text-gray-900',
+  actions: 'flex items-center gap-3',
+} as const;
+
+/**
+ * Avatar Styles
+ */
+export const avatarStyles = {
+  base: 'flex items-center justify-center rounded-full font-medium text-white transition-colors',
+  sm: 'h-6 w-6 text-xs',
+  md: 'h-7 w-7 text-sm',
+  lg: 'h-10 w-10 text-base',
+  interactive:
+    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-900/20 focus-visible:border-brand',
+  brand: 'bg-brand hover:bg-brand-hover',
 } as const;
 
 /**
@@ -300,6 +340,9 @@ export default {
   separator: separatorStyles,
   filter: filterStyles,
   search: searchStyles,
+  pagination: paginationStyles,
+  header: headerStyles,
+  avatar: avatarStyles,
   scrollbar: scrollbarStyles,
   animation: animationStyles,
   combineStyles,

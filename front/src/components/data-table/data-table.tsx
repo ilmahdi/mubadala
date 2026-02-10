@@ -40,9 +40,9 @@ export function DataTable<TData extends { id: string }>({
     >
       {children}
 
-      <div className="overflow-hidden rounded-md border border-gray-200">
+      <div className={tableStyles.wrapper}>
         <Table className="text-sm">
-          <TableHeader className="bg-gray-50">
+          <TableHeader className={tableStyles.header}>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
                 {/* Expand icon header */}

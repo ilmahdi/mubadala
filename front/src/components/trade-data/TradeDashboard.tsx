@@ -1,11 +1,11 @@
-// import { cardStyles, textStyles } from '@/src/config/component-styles';
+import { containerStyles } from '@/src/config/component-styles';
 import TradeDataTable from './TradeDataTable';
 
 export default function TradeDashboard() {
   return (
-    <div className="flex h-fit flex-col gap-3 overflow-auto">
+    <div className={containerStyles.flexCol}>
       {/* Top summary area (placeholder for future KPIs/charts) */}
-      {/* <div className="grid grid-cols-3 gap-3">
+      {/* <div className={containerStyles.grid3}>
         <div className={cardStyles.compact}>
           <p className={textStyles.muted}>Total Imports</p>
         </div>
