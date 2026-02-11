@@ -18,11 +18,11 @@ interface SearchModeToggleProps {
  */
 const getButtonClass = (isActive: boolean) =>
   cn(
-    'rounded-md border border-transparent px-3 py-1 text-xs font-medium transition-colors',
+    'rounded-md bg-gray-50 px-3 py-1 text-xs font-medium transition-colors',
     'focus-visible:ring-2 focus-visible:ring-brand/20 focus-visible:outline-none',
     isActive
       ? 'bg-brand text-white'
-      : 'text-gray-600 hover:bg-gray-50 hover:border-gray-100 border border-gray-100',
+      : 'text-gray-600 hover:text-gray-400 hover:border-gray-100 border-0 border-gray-100',
   );
 
 export const SearchModeToggle = memo(function SearchModeToggle({
@@ -30,7 +30,7 @@ export const SearchModeToggle = memo(function SearchModeToggle({
   onModeChange,
 }: SearchModeToggleProps) {
   return (
-    <div className="flex items-center gap-1 rounded-md p-1">
+    <div className="flex flex-wrap items-center gap-1 rounded-md p-1">
       {SEARCH_MODES.map(({ key, label, ariaLabel }) => (
         <button
           key={key}

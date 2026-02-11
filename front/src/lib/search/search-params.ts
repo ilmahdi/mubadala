@@ -23,15 +23,15 @@ export interface SearchParams {
  */
 export function useSearch(): SearchParams {
   const [hsCodeSearch] = useQueryState(
-    'hs_product_code__startswith',
+    'hs_product__hs_product_code__startswith',
     parseAsString.withDefault(''),
   );
   const [productSearch] = useQueryState(
-    'hs_product_label__icontains',
+    'hs_product__hs_product_label__icontains',
     parseAsString.withDefault(''),
   );
   const [categorySearch] = useQueryState(
-    'hs_chapter_label__icontains',
+    'hs_product__hs_chapter_label__icontains',
     parseAsString.withDefault(''),
   );
 
@@ -54,13 +54,16 @@ export function searchParamsToQueryParams(
   const queryParams: Record<string, string> = {};
 
   if (searchParams.hsCodeSearch) {
-    queryParams['hs_product_code__startswith'] = searchParams.hsCodeSearch;
+    queryParams['hs_product__hs_product_code__startswith'] =
+      searchParams.hsCodeSearch;
   }
   if (searchParams.productSearch) {
-    queryParams['hs_product_label__icontains'] = searchParams.productSearch;
+    queryParams['hs_product__hs_product_label__icontains'] =
+      searchParams.productSearch;
   }
   if (searchParams.categorySearch) {
-    queryParams['hs_chapter_label__icontains'] = searchParams.categorySearch;
+    queryParams['hs_product__hs_chapter_label__icontains'] =
+      searchParams.categorySearch;
   }
 
   return queryParams;

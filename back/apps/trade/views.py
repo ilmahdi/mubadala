@@ -11,9 +11,9 @@ from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.generics import ListAPIView
 from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import AllowAny
-from .models import Country, Flow, Trade
-from .serializers import CountrySerializer, FlowSerializer, TradeSerializer
-from .filters import TradeFilter
+from .models import Country, Flow, TradeFact
+from .serializers import CountrySerializer, FlowSerializer, TradeFactSerializer
+from .filters import TradeFactFilter
 from .pagination import TradeCursorPagination
 from .filter_utils import build_filter_q
 from .filter_serializer import parse_filters_from_query_params
@@ -24,39 +24,52 @@ logger = logging.getLogger(__name__)
 
 class TradeListView(ListAPIView):
     """
-    List view for Trade data.
+    List view for TradeFact data.
 
     Supports two filtering modes:
     1. Standard django-filter (preferred for simple AND filters):
-       ?continent__iexact=EUROPE&value_dhs__gte=10000
+       ?country__continent__iexact=EUROPE&value_dhs__gte=10000
 
     2. Advanced composite filters (for OR logic, NOT operators, complex conditions):
        ?filters=[{"id":"continent","operator":"inArray","value":["EUROPE"]}]&joinOperator=or
+
+    Uses select_related() to optimize dimension table joins and prevent N+1 queries.
     """
 
-    queryset = Trade.objects.all()
-    serializer_class = TradeSerializer
+    serializer_class = TradeFactSerializer
     pagination_class = TradeCursorPagination
-    filterset_class = TradeFilter
+    filterset_class = TradeFactFilter
     permission_classes = [AllowAny]
 
     filter_backends = [DjangoFilterBackend, filters.OrderingFilter]
 
     ordering_fields = [
-        "hs_product_code",
-        "hs_product_label",
-        "country_name",
-        "continent",
-        "flow_code",
+        "hs_product__hs_product_code",
+        "hs_product__hs_product_label",
+        "country__country_name",
+        "country__continent",
+        "flow__flow_code",
         "value_dhs",
         "weight_kg",
-        "date",
+        "trade_date",
     ]
 
-    ordering = ["-date"]
+    ordering = ["-trade_date"]
 
     def get_queryset(self):
-        queryset = super().get_queryset()
+        """
+        Optimized queryset with select_related() for all dimension tables.
+
+        This prevents N+1 queries by performing SQL joins for all foreign keys.
+        """
+        queryset = TradeFact.objects.select_related(
+            "hs_product",
+            "usage_group",
+            "remarkable_product",
+            "ctci",
+            "country",
+            "flow",
+        )
 
         # --- Step 2a: Standard filters from django-filter ---
         # Handled automatically by DjangoFilterBackend

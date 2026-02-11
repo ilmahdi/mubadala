@@ -1,11 +1,15 @@
 """
-Advanced filter utilities using Django Q objects.
+Advanced filter utilities using Django Q objects for star schema.
 
 Supports logic not easily expressed via django-filter:
 - OR joins
 - Negation operators
 - Empty / not empty checks
 - Between ranges
+
+Field Mapping:
+Frontend uses flat field names (e.g., "continent", "hs_product_code") which are mapped
+to dimension relationships (e.g., "country__continent", "hs_product__hs_product_code").
 """
 
 from typing import Dict, List, Optional, Any
@@ -15,6 +19,42 @@ from datetime import datetime, date, timezone
 import logging
 
 logger = logging.getLogger(__name__)
+
+
+# Map frontend field names to TradeFact dimension relationships
+FIELD_MAPPING = {
+    # HS Product dimension
+    "hs_product_code": "hs_product__hs_product_code",
+    "hs_product_label": "hs_product__hs_product_label",
+    "hs_chapter_code": "hs_product__hs_chapter_code",
+    "hs_chapter_label": "hs_product__hs_chapter_label",
+    # Usage Group dimension
+    "usage_group_code": "usage_group__usage_group_code",
+    "usage_group_label": "usage_group__usage_group_label",
+    # Remarkable Product dimension
+    "remarkable_product_code": "remarkable_product__remarkable_product_code",
+    "remarkable_product_label": "remarkable_product__remarkable_product_label",
+    # CTCI dimension
+    "ctci_section_code": "ctci__ctci_section_code",
+    "ctci_section_label": "ctci__ctci_section_label",
+    "ctci_division_code": "ctci__ctci_division_code",
+    "ctci_division_label": "ctci__ctci_division_label",
+    "ctci_group_code": "ctci__ctci_group_code",
+    "ctci_group_label": "ctci__ctci_group_label",
+    # Country dimension
+    "country_code": "country__country_code",
+    "country_name": "country__country_name",
+    "continent": "country__continent",
+    # Flow dimension
+    "flow_code": "flow__flow_code",
+    "flow_label": "flow__flow_label",
+    # Time dimension (rename date -> trade_date)
+    "date": "trade_date",
+    # Metrics (no mapping needed, direct fields)
+    "weight_kg": "weight_kg",
+    "value_dhs": "value_dhs",
+    "supplementary_unit": "supplementary_unit",
+}
 
 
 NUMERIC_VARIANTS = {"number", "range"}
@@ -65,21 +105,26 @@ def _build_single_filter_q(cfg: Dict[str, Any]) -> Optional[Q]:
     if not field or not op:
         return None
 
-    logger.debug("Building filter: %s %s %r (%s)", field, op, value, variant)
+    # Map frontend field name to dimension relationship
+    mapped_field = FIELD_MAPPING.get(field, field)
+
+    logger.debug(
+        "Building filter: %s -> %s %s %r (%s)", field, mapped_field, op, value, variant
+    )
 
     # special operators
     if op == "isEmpty":
         if variant in DATE_VARIANTS | NUMERIC_VARIANTS | {"range"}:
-            return Q(**{f"{field}__isnull": True})
-        return Q(**{f"{field}__isnull": True}) | Q(**{field: ""})
+            return Q(**{f"{mapped_field}__isnull": True})
+        return Q(**{f"{mapped_field}__isnull": True}) | Q(**{mapped_field: ""})
 
     if op == "isNotEmpty":
         if variant in DATE_VARIANTS | NUMERIC_VARIANTS | {"range"}:
-            return ~Q(**{f"{field}__isnull": True})
-        return ~Q(**{f"{field}__isnull": True}) & ~Q(**{field: ""})
+            return ~Q(**{f"{mapped_field}__isnull": True})
+        return ~Q(**{f"{mapped_field}__isnull": True}) & ~Q(**{mapped_field: ""})
 
     if op == "isBetween":
-        return _build_range_q(field, value, variant)
+        return _build_range_q(mapped_field, value, variant)
 
     lookup = _resolve_lookup(op, variant)
     if not lookup:
@@ -90,7 +135,7 @@ def _build_single_filter_q(cfg: Dict[str, Any]) -> Optional[Q]:
     if prepared is None:
         return None
 
-    q = Q(**{f"{field}__{lookup}": prepared})
+    q = Q(**{f"{mapped_field}__{lookup}": prepared})
     return ~q if op in NEGATED_OPERATORS else q
 
 

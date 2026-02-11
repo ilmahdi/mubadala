@@ -21,7 +21,7 @@ export const SearchInput = memo(
     ref,
   ) {
     return (
-      <div className="mx-4 flex-1">
+      <div className="flex-1">
         <div className="relative flex items-center">
           <SearchIcon
             className="pointer-events-none absolute left-3 h-5 w-5 text-gray-400"
