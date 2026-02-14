@@ -1,7 +1,6 @@
 import { TradeRow } from '@/src/components/trade-data/columns';
 import {
   API_BASE_URL,
-  fetchPaginated,
   PaginatedResponse,
   apiGet,
   apiPost,
@@ -11,9 +10,6 @@ import {
 } from '../api';
 import type { BackendFilterParams } from '@/src/types/filters';
 
-/**
- * Base query parameters for trade API
- */
 export interface TradeBaseParams {
   page?: number;
   page_size?: number;
@@ -21,17 +17,10 @@ export interface TradeBaseParams {
   search?: string;
 }
 
-/**
- * Complete trade API query parameters including filters
- */
 export interface TradeQueryParams extends TradeBaseParams, BackendFilterParams {
-  // Allow any additional filter params for backwards compatibility
-  [key: string]: string | number | undefined;
+  [key: string]: object | string | number | undefined;
 }
 
-/**
- * Build query string from parameters
- */
 function buildQueryString(params: TradeQueryParams): string {
   const searchParams = new URLSearchParams();
 
@@ -52,34 +41,20 @@ function buildQueryString(params: TradeQueryParams): string {
   return queryString ? `?${queryString}` : '';
 }
 
-/**
- * Fetch trades (single page)
- */
 export async function getTrades(
-  params?: TradeQueryParams,
+  data?: TradeQueryParams,
 ): Promise<PaginatedResponse<TradeRow>> {
-  const queryString = buildQueryString(params || {});
-  const url = `${API_BASE_URL}/trades/${queryString}`;
-  return fetchPaginated<TradeRow>(url);
+  return apiPost<PaginatedResponse<TradeRow>>('/trades/', data);
 }
 
-/**
- * Fetch a single trade by ID
- */
 export async function getTrade(id: number): Promise<TradeRow> {
   return apiGet<TradeRow>(`/trades/${id}/`);
 }
 
-/**
- * Create a new trade
- */
 export async function createTrade(data: Partial<TradeRow>): Promise<TradeRow> {
   return apiPost<TradeRow, Partial<TradeRow>>('/trades/', data);
 }
 
-/**
- * Update a trade (full update)
- */
 export async function updateTrade(
   id: number,
   data: Partial<TradeRow>,
@@ -87,9 +62,6 @@ export async function updateTrade(
   return apiPut<TradeRow, Partial<TradeRow>>(`/trades/${id}/`, data);
 }
 
-/**
- * Partially update a trade
- */
 export async function patchTrade(
   id: number,
   data: Partial<TradeRow>,
@@ -97,16 +69,10 @@ export async function patchTrade(
   return apiPatch<TradeRow, Partial<TradeRow>>(`/trades/${id}/`, data);
 }
 
-/**
- * Delete a trade
- */
 export async function deleteTrade(id: number): Promise<void> {
   return apiDelete(`/trades/${id}/`);
 }
 
-/**
- * Export trades to CSV
- */
 export async function exportTradesToCSV(
   params?: TradeQueryParams,
 ): Promise<Blob> {

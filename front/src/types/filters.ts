@@ -1,23 +1,14 @@
 /**
  * Filter type definitions for the trade data table.
  *
- * These types map to the Django backend filter system and ensure type safety
- * when building filter query parameters. The backend expects filters as JSON
- * with specific operator/variant combinations.
+ * Maps to Django backend filter system with type-safe operator/variant combinations.
  *
- * @see /back/apps/trade/filter_utils.py - Backend filter implementation
- * @see /back/apps/trade/filter_serializer.py - Backend validation
+ * @see /back/apps/trade/filter_utils.py
  */
 
 /**
  * Filter operators supported by the backend.
- *
- * Maps directly to Django ORM lookups:
- * - iLike → __icontains (case-insensitive contains)
- * - eq → __iexact (case-insensitive exact match)
- * - inArray → __in (SQL IN clause)
- * - gte/lte → __gte/__lte (comparison operators)
- * - etc.
+ * Maps to Django ORM lookups (iLike → __icontains, eq → __iexact, etc.).
  */
 export type BackendFilterOperator =
   | 'iLike' // Contains (text search)
@@ -36,12 +27,7 @@ export type BackendFilterOperator =
   | 'isRelativeToToday'; // Date relative to today (not yet implemented)
 
 /**
- * Filter variants that determine how values are processed.
- *
- * The variant affects:
- * 1. Available operators
- * 2. Value validation
- * 3. Backend conversion logic
+ * Filter variants that determine available operators and value processing.
  */
 export type FilterVariant =
   | 'text' // String values
@@ -54,31 +40,20 @@ export type FilterVariant =
   | 'multiSelect'; // Multiple select from options
 
 /**
- * Join operator for combining multiple filters.
- *
- * - 'and': All filters must match (default)
- * - 'or': At least one filter must match
+ * Join operator: 'and' (all match) or 'or' (any match).
  */
 export type JoinOperator = 'and' | 'or';
 
 /**
- * Backend API filter parameters.
- *
- * Sent as query string parameters:
- * - filters: JSON array of BackendFilterItem
- * - joinOperator: 'and' or 'or'
- *
- * Example: ?filters=[{"id":"continent","operator":"inArray",...}]&joinOperator=and
+ * Backend API filter parameters sent in request body.
  */
 export interface BackendFilterParams {
-  filters?: string; // JSON stringified array of filter items
+  filters?: object; // JSON stringified array of filter items
   joinOperator?: JoinOperator;
 }
 
 /**
- * Filter item as expected by the Django backend.
- *
- * This matches the structure defined in filter_serializer.py (FilterItemSerializer)
+ * Filter item structure expected by Django backend.
  */
 export interface BackendFilterItem {
   id: string; // Field name (must match Django model field)
@@ -88,9 +63,6 @@ export interface BackendFilterItem {
   filterId: string; // Unique identifier for this filter instance
 }
 
-/**
- * Complete filter specification sent to backend.
- */
 export interface FilterSpecification {
   filters: BackendFilterItem[];
   joinOperator: JoinOperator;
@@ -151,9 +123,7 @@ const VALID_OPERATORS: Record<FilterVariant, readonly BackendFilterOperator[]> =
     multiSelect: ['inArray', 'notInArray', 'isEmpty', 'isNotEmpty'],
   } as const;
 
-/**
- * Type guard to check if a value is a valid filter operator
- */
+/** Type guard for valid filter operator. */
 export function isValidFilterOperator(
   operator: string,
 ): operator is BackendFilterOperator {
@@ -176,9 +146,7 @@ export function isValidFilterOperator(
   return validOperators.includes(operator as BackendFilterOperator);
 }
 
-/**
- * Type guard to check if a value is a valid filter variant
- */
+/** Type guard for valid filter variant. */
 export function isValidFilterVariant(
   variant: string,
 ): variant is FilterVariant {
@@ -195,26 +163,14 @@ export function isValidFilterVariant(
   return validVariants.includes(variant as FilterVariant);
 }
 
-/**
- * Type guard to check if a value is a valid join operator
- */
+/** Type guard for valid join operator. */
 export function isValidJoinOperator(
   operator: string,
 ): operator is JoinOperator {
   return operator === 'and' || operator === 'or';
 }
 
-/**
- * Validate operator compatibility with variant.
- *
- * @param variant - The filter variant
- * @param operator - The filter operator
- * @returns True if the operator is valid for the given variant
- *
- * @example
- * isOperatorValidForVariant('multiSelect', 'inArray') // true
- * isOperatorValidForVariant('text', 'inArray') // false
- */
+/** Validate operator compatibility with variant. */
 export function isOperatorValidForVariant(
   variant: FilterVariant,
   operator: BackendFilterOperator,
@@ -223,12 +179,7 @@ export function isOperatorValidForVariant(
   return validOps.includes(operator);
 }
 
-/**
- * Get valid operators for a given variant.
- *
- * @param variant - The filter variant
- * @returns Array of valid operators for the variant
- */
+/** Get valid operators for a given variant. */
 export function getValidOperatorsForVariant(
   variant: FilterVariant,
 ): readonly BackendFilterOperator[] {
