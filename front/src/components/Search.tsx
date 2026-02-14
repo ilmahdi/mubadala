@@ -1,7 +1,7 @@
 'use client';
 
-import { useCallback, useState, useRef } from 'react';
-import { useQueryState, parseAsString } from 'nuqs';
+import { useCallback, useState, useRef, useMemo } from 'react';
+import { useQueryState } from 'nuqs';
 import { useDebouncedCallback } from '@/src/hooks/use-debounced-callback';
 import { useSearchMode } from '@/src/hooks/use-search-mode';
 import { useKeyboardShortcut } from '@/src/hooks/use-keyboard-shortcut';
@@ -9,46 +9,70 @@ import {
   SearchMode,
   getSearchModeConfig,
   SEARCH_CONFIG,
+  getSearchFilterConfig,
 } from '@/src/lib/search/search-config';
 import { SearchModeToggle } from '@/src/components/search/SearchModeToggle';
 import { SearchInput } from '@/src/components/search/SearchInput';
 import { SearchStatusIndicator } from '@/src/components/search/SearchStatusIndicator';
 import { searchStyles } from '@/src/config/component-styles';
+import { getFiltersStateParser } from '@/src/lib/parsers';
+import type { ExtendedColumnFilter } from '@/src/types/data-table';
+import type { TradeRow } from '@/src/components/trade-data/columns';
+
+const SEARCH_FILTER_ID = '__search__';
 
 /**
- * Main search component with backend integration.
- *
- * Features:
- * - Multiple search modes (HS Code, Product, Category)
- * - URL state management via nuqs
- * - Debounced input for performance
- * - Persists selected mode to localStorage
- * - Keyboard shortcuts (Ctrl+K to focus, Escape to clear)
- * - Accessibility compliant
+ * Main search component with multiple modes (HS Code, Product, Category).
+ * Integrates with unified filter system using 'filters' URL param.
  */
 export default function Search() {
   const [mode, setMode] = useSearchMode();
   const inputRef = useRef<HTMLInputElement>(null);
 
   const currentMode = getSearchModeConfig(mode);
+  const filterConfig = getSearchFilterConfig(mode);
 
-  // URL state for the search parameter
-  const [urlSearchValue, setUrlSearchValue] = useQueryState(
-    currentMode.field,
-    parseAsString.withDefault('').withOptions({
+  // Get filters from URL
+  const [filters, setFilters] = useQueryState<ExtendedColumnFilter<TradeRow>[]>(
+    'search',
+    getFiltersStateParser<TradeRow>().withDefault([]).withOptions({
       history: 'replace',
       shallow: true,
       clearOnDefault: true,
     }),
   );
 
-  // Derive local state from URL state (no useState needed)
-  const [searchText, setSearchText] = useState(urlSearchValue || '');
+  // Find existing search filter
+  const searchFilter = useMemo(
+    () => filters?.find((f) => f.filterId === SEARCH_FILTER_ID),
+    [filters],
+  );
 
-  // Debounced URL update
+  // Derive local state from filters
+  const [searchText, setSearchText] = useState(
+    (searchFilter?.value as string) || '',
+  );
+
+  // Debounced filter update
   const debouncedSetSearch = useDebouncedCallback((value: string) => {
     if (value.length >= currentMode.minChars || value.length === 0) {
-      void setUrlSearchValue(value || null);
+      const otherFilters =
+        filters?.filter((f) => f.filterId !== SEARCH_FILTER_ID) || [];
+
+      if (value) {
+        // Add/update search filter
+        const newFilter: ExtendedColumnFilter<TradeRow> = {
+          id: filterConfig.id as keyof TradeRow,
+          value,
+          variant: filterConfig.variant,
+          operator: filterConfig.operator,
+          filterId: SEARCH_FILTER_ID,
+        };
+        void setFilters([...otherFilters, newFilter]);
+      } else {
+        // Remove search filter
+        void setFilters(otherFilters.length > 0 ? otherFilters : null);
+      }
     }
   }, SEARCH_CONFIG.debounceMs);
 
@@ -66,19 +90,24 @@ export default function Search() {
     (newMode: SearchMode) => {
       if (newMode === mode) return;
 
-      void setUrlSearchValue(null);
+      // Remove search filter when changing modes
+      const otherFilters =
+        filters?.filter((f) => f.filterId !== SEARCH_FILTER_ID) || [];
+      void setFilters(otherFilters.length > 0 ? otherFilters : null);
       setMode(newMode);
       setSearchText('');
       setTimeout(() => inputRef.current?.focus(), 0);
     },
-    [mode, setMode, setUrlSearchValue],
+    [mode, setMode, filters, setFilters],
   );
 
   const handleClear = useCallback(() => {
     setSearchText('');
-    void setUrlSearchValue(null);
+    const otherFilters =
+      filters?.filter((f) => f.filterId !== SEARCH_FILTER_ID) || [];
+    void setFilters(otherFilters.length > 0 ? otherFilters : null);
     inputRef.current?.focus();
-  }, [setUrlSearchValue]);
+  }, [filters, setFilters]);
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent<HTMLInputElement>) => {

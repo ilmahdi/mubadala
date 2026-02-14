@@ -15,10 +15,6 @@ import type {
 } from '@/src/types/data-table';
 import type { JoinOperator } from '@/src/types/filters';
 import { buildBackendFilters } from '@/src/lib/filters/filter-builder';
-import {
-  useSearch,
-  searchParamsToQueryParams,
-} from '@/src/lib/search/search-params';
 
 // Constants
 const DEFAULT_PAGE = 1;
@@ -27,25 +23,6 @@ const DEFAULT_JOIN_OPERATOR = 'and';
 const INVALID_PAGE_ERROR = 'invalid page';
 const GENERIC_ERROR_MESSAGE = 'Failed to load trade data';
 
-/**
- * Options for useTradeData hook
- */
-interface UseTradeDataOptions {
-  /**
-   * Whether to fetch all data at once (no pagination)
-   * @default false
-   */
-  autoFetchAll?: boolean;
-
-  /**
-   * Additional filters to apply (merged with URL filters)
-   */
-  filters?: Partial<TradeQueryParams>;
-}
-
-/**
- * Return type for useTradeData hook
- */
 interface UseTradeDataReturn {
   data: TradeRow[];
   loading: boolean;
@@ -58,25 +35,10 @@ interface UseTradeDataReturn {
 }
 
 /**
- * Custom hook for fetching and managing trade data.
- *
- * Handles pagination, sorting, and filtering state from URL parameters.
- * Integrates with the backend filter system for advanced filtering.
- *
- * @param options - Configuration options
- * @returns Trade data and loading state
- *
- * @example
- * const { data, loading, error, refetch } = useTradeData({
- *   filters: { search: 'wheat' }
- * });
+ * Custom hook for fetching trade data with pagination, sorting, and filtering.
+ * Manages state from URL parameters and integrates with backend filter system.
  */
-export function useTradeData(
-  options: UseTradeDataOptions = {},
-): UseTradeDataReturn {
-  const { filters: additionalFilters } = options;
-
-  // URL state management
+export function useTradeData(): UseTradeDataReturn {
   const [page, setPage] = useQueryState(
     'page',
     parseAsInteger.withDefault(DEFAULT_PAGE),
@@ -85,12 +47,16 @@ export function useTradeData(
     'perPage',
     parseAsInteger.withDefault(DEFAULT_PER_PAGE),
   );
-  const [sorting] = useQueryState<ExtendedColumnSort<TradeRow>[]>(
+  const [sort] = useQueryState<ExtendedColumnSort<TradeRow>[]>(
     'sort',
     getSortingStateParser<TradeRow>().withDefault([]),
   );
-  const [filters_raw] = useQueryState<ExtendedColumnFilter<TradeRow>[]>(
+  const [filters] = useQueryState<ExtendedColumnFilter<TradeRow>[]>(
     'filters',
+    getFiltersStateParser<TradeRow>().withDefault([]),
+  );
+  const [search] = useQueryState<ExtendedColumnFilter<TradeRow>[]>(
+    'search',
     getFiltersStateParser<TradeRow>().withDefault([]),
   );
   const [joinOperator] = useQueryState(
@@ -100,13 +66,19 @@ export function useTradeData(
       .withOptions({ clearOnDefault: true, shallow: true }),
   );
 
-  // Search parameters (from Search component)
-  const { hsCodeSearch, productSearch, categorySearch } = useSearch();
+  const normalizedFilters: ExtendedColumnFilter<TradeRow>[] = useMemo(
+    () => (Array.isArray(filters) ? filters : []),
+    [filters],
+  );
 
-  // Parse and normalize filters from URL state
+  const normalizedSearch: ExtendedColumnFilter<TradeRow>[] = useMemo(
+    () => (Array.isArray(search) ? search : []),
+    [search],
+  );
+
   const advancedFilters: ExtendedColumnFilter<TradeRow>[] = useMemo(
-    () => (Array.isArray(filters_raw) ? filters_raw : []),
-    [filters_raw],
+    () => [...normalizedFilters, ...normalizedSearch],
+    [normalizedFilters, normalizedSearch],
   );
 
   const [data, setData] = useState<TradeRow[]>([]);
@@ -118,38 +90,24 @@ export function useTradeData(
   const [refetchTrigger, setRefetchTrigger] = useState(0);
   const [isHydrated, setIsHydrated] = useState(false);
 
-  // Wait for client-side hydration before fetching
   useEffect(() => {
     setIsHydrated(true);
   }, []);
 
-  // Reset to first page when filters change
   useEffect(() => {
     if (isHydrated && page !== DEFAULT_PAGE) {
       void setPage(DEFAULT_PAGE);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [
-    advancedFilters,
-    hsCodeSearch,
-    productSearch,
-    categorySearch,
-    isHydrated,
-  ]);
+  }, [normalizedFilters, normalizedSearch, isHydrated]);
 
-  // Convert sorting state to Django ordering format
-  // Django expects: "-date" for descending, "date" for ascending
-  const ordering = useMemo(() => {
-    if (!sorting?.length) return undefined;
-    return sorting
-      .map(
-        (sort: ExtendedColumnSort<TradeRow>) =>
-          `${sort.desc ? '-' : ''}${sort.id}`,
-      )
-      .join(',');
-  }, [sorting]);
+  const backendSortingParams = useMemo(() => {
+    if (!sort?.length) return undefined;
+    return {
+      sort,
+    };
+  }, [sort]);
 
-  // Convert frontend filters to backend API params
   const backendFilterParams = useMemo(() => {
     if (!advancedFilters?.length) return {};
 
@@ -164,34 +122,15 @@ export function useTradeData(
     }
   }, [advancedFilters, joinOperator]);
 
-  // Build complete query parameters for API request
   const queryParams = useMemo((): TradeQueryParams => {
-    const searchQueryParams = searchParamsToQueryParams({
-      hsCodeSearch,
-      productSearch,
-      categorySearch,
-    });
-
     return {
-      ...additionalFilters,
       ...backendFilterParams,
-      ...searchQueryParams,
+      ...backendSortingParams,
       page,
       page_size: perPage,
-      ordering,
     };
-  }, [
-    additionalFilters,
-    backendFilterParams,
-    hsCodeSearch,
-    productSearch,
-    categorySearch,
-    page,
-    perPage,
-    ordering,
-  ]);
+  }, [backendFilterParams, backendSortingParams, page, perPage]);
 
-  // Fetch trade data from API
   const fetchTrades = useCallback(async () => {
     try {
       setLoading(true);
@@ -207,13 +146,11 @@ export function useTradeData(
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : '';
 
-      // Auto-recover from invalid page errors (e.g., when filters reduce results)
       if (errorMessage.toLowerCase().includes(INVALID_PAGE_ERROR)) {
         void setPage(DEFAULT_PAGE);
-        return; // Skip error state, let automatic refetch handle it
+        return;
       }
 
-      // Set error state for all other failures
       setError(errorMessage || GENERIC_ERROR_MESSAGE);
       console.error('Error fetching trade data:', err);
     } finally {
@@ -221,15 +158,12 @@ export function useTradeData(
     }
   }, [queryParams, setPage]);
 
-  // Effect to fetch data when parameters change
   useEffect(() => {
-    // Only fetch after hydration to ensure URL params are loaded
     if (isHydrated) {
       fetchTrades();
     }
   }, [fetchTrades, refetchTrigger, isHydrated]);
 
-  // Refetch function for manual refresh
   const refetch = useCallback(() => {
     setRefetchTrigger((prev) => prev + 1);
   }, []);
