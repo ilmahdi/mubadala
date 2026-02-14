@@ -64,6 +64,8 @@ ARRAY_OPERATORS = {"inArray", "notInArray"}
 NEGATED_OPERATORS = {"ne", "notILike", "notInArray", "isNotEmpty"}
 
 LOOKUPS = {
+    "iLike": "icontains",
+    "notILike": "icontains",
     "eq": "iexact",
     "ne": "iexact",
     "lt": "lt",
