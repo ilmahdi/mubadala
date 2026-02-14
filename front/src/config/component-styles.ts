@@ -270,7 +270,7 @@ export const paginationStyles = {
 export const headerStyles = {
   container: 'sticky top-0 border border-gray-100 bg-white shadow-xs',
   inner: 'flex h-14 items-center justify-between px-6',
-  logo: 'flex items-center gap-2',
+  logo: 'flex items-center',
   logoIcon: 'flex h-10 w-10 items-center justify-center text-brand',
   logoText: 'text-lg font-semibold tracking-tight text-gray-900',
   actions: 'flex items-center gap-3',

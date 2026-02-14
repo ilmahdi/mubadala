@@ -18,14 +18,22 @@ import { paginationStyles } from '@/src/config/component-styles';
 interface DataTablePaginationProps<TData> extends React.ComponentProps<'div'> {
   table: Table<TData>;
   totalCount: number;
+  loading?: boolean;
   pageSizeOptions?: number[];
 }
+
+const LIMIT_OFSET_PAGINATION = 5000;
 
 export function DataTablePagination<TData>({
   table,
   totalCount,
+  loading = false,
   pageSizeOptions = [10, 20, 30, 40, 50],
 }: DataTablePaginationProps<TData>) {
+  const isDisabled = (arr: boolean[]) => {
+    if (loading) return true;
+    return arr.some((condition) => condition);
+  };
   const { pageIndex, pageSize } = table.getState().pagination;
 
   const startRow = totalCount === 0 ? 0 : pageIndex * pageSize + 1;
@@ -54,7 +62,7 @@ export function DataTablePagination<TData>({
           <button
             className={paginationStyles.button}
             onClick={() => table.setPageIndex(0)}
-            disabled={!table.getCanPreviousPage()}
+            disabled={isDisabled([!table.getCanPreviousPage()])}
             aria-label="First page"
           >
             <ChevronsLeft className="h-4 w-4" />
@@ -63,7 +71,7 @@ export function DataTablePagination<TData>({
           <button
             className={paginationStyles.button}
             onClick={() => table.previousPage()}
-            disabled={!table.getCanPreviousPage()}
+            disabled={isDisabled([!table.getCanPreviousPage()])}
             aria-label="Previous page"
           >
             <ChevronLeft className="h-4 w-4" />
@@ -72,7 +80,7 @@ export function DataTablePagination<TData>({
           <button
             className={paginationStyles.button}
             onClick={() => table.nextPage()}
-            disabled={!table.getCanNextPage()}
+            disabled={isDisabled([!table.getCanNextPage()])}
             aria-label="Next page"
           >
             <ChevronRight className="h-4 w-4" />
@@ -81,8 +89,16 @@ export function DataTablePagination<TData>({
           <button
             className={paginationStyles.button}
             onClick={() => table.setPageIndex(pageCount - 1)}
-            disabled={!table.getCanNextPage()}
+            disabled={isDisabled([
+              !table.getCanNextPage(),
+              pageCount > LIMIT_OFSET_PAGINATION,
+            ])}
             aria-label="Last page"
+            title={
+              pageCount > LIMIT_OFSET_PAGINATION
+                ? 'Page count exceeds 5000, use filters to reduce results'
+                : undefined
+            }
           >
             <ChevronsRight className="h-4 w-4" />
           </button>
@@ -94,7 +110,7 @@ export function DataTablePagination<TData>({
             table.setPageSize(Number(value));
           }}
         >
-          <SelectTrigger className="bg-background h-6 w-18 border-gray-300 py-0 text-sm outline-0 hover:border-gray-400 data-size:h-6">
+          <SelectTrigger className="bg-background h-6 w-fit rounded-sm border-gray-300 py-0 text-sm outline-0 hover:border-gray-400 data-size:h-6">
             <SelectValue placeholder={table.getState().pagination.pageSize} />
           </SelectTrigger>
           <SelectContent

@@ -35,7 +35,7 @@ export function DataTable<TData extends { id: string }>({
 }: DataTableProps<TData>) {
   return (
     <div
-      className={cn('flex w-full flex-col gap-2.5 overflow-auto', className)}
+      className={cn('flex w-full flex-col gap-2 overflow-auto', className)}
       {...props}
     >
       {children}
@@ -80,8 +80,12 @@ export function DataTable<TData extends { id: string }>({
         </Table>
       </div>
 
-      <div className="flex flex-col gap-2.5">
-        <DataTablePagination table={table} totalCount={totalCount} />
+      <div className="flex flex-col">
+        <DataTablePagination
+          table={table}
+          totalCount={totalCount}
+          loading={loading}
+        />
         {actionBar &&
           table.getFilteredSelectedRowModel().rows.length > 0 &&
           actionBar}
