@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useMemo, useCallback } from 'react';
+import { useEffect, useState, useMemo, useCallback, useRef } from 'react';
 import { useQueryState, parseAsInteger, parseAsStringEnum } from 'nuqs';
 import type { TradeRow } from '../components/trade-data/columns';
 import { getTrades, TradeQueryParams } from '@/src/lib/services/trade.service';
@@ -66,21 +66,6 @@ export function useTradeData(): UseTradeDataReturn {
       .withOptions({ clearOnDefault: true, shallow: true }),
   );
 
-  const normalizedFilters: ExtendedColumnFilter<TradeRow>[] = useMemo(
-    () => (Array.isArray(filters) ? filters : []),
-    [filters],
-  );
-
-  const normalizedSearch: ExtendedColumnFilter<TradeRow>[] = useMemo(
-    () => (Array.isArray(search) ? search : []),
-    [search],
-  );
-
-  const advancedFilters: ExtendedColumnFilter<TradeRow>[] = useMemo(
-    () => [...normalizedFilters, ...normalizedSearch],
-    [normalizedFilters, normalizedSearch],
-  );
-
   const [data, setData] = useState<TradeRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -88,83 +73,173 @@ export function useTradeData(): UseTradeDataReturn {
   const [nextPage, setNextPage] = useState<string | null>(null);
   const [previousPage, setPreviousPage] = useState<string | null>(null);
   const [refetchTrigger, setRefetchTrigger] = useState(0);
-  const [isHydrated, setIsHydrated] = useState(false);
+
+  const isMountedRef = useRef(false);
+  const abortControllerRef = useRef<AbortController | null>(null);
+  const lastFetchedQueryRef = useRef<string>('');
+  const isUpdatingPageRef = useRef(false);
 
   useEffect(() => {
-    setIsHydrated(true);
+    isMountedRef.current = true;
+    return () => {
+      isMountedRef.current = false;
+    };
   }, []);
 
-  useEffect(() => {
-    if (isHydrated && page !== DEFAULT_PAGE) {
-      void setPage(DEFAULT_PAGE);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [normalizedFilters, normalizedSearch, isHydrated]);
-
-  const backendSortingParams = useMemo(() => {
-    if (!sort?.length) return undefined;
-    return {
-      sort,
-    };
-  }, [sort]);
+  const advancedFilters = useMemo<ExtendedColumnFilter<TradeRow>[]>(() => {
+    const normalizedFilters = Array.isArray(filters) ? filters : [];
+    const normalizedSearch = Array.isArray(search) ? search : [];
+    return [...normalizedFilters, ...normalizedSearch];
+  }, [filters, search]);
 
   const backendFilterParams = useMemo(() => {
-    if (!advancedFilters?.length) return {};
+    if (!advancedFilters.length) return {};
 
     try {
       return buildBackendFilters<TradeRow>(
         advancedFilters,
         joinOperator as JoinOperator,
       );
-    } catch (error) {
-      console.error('Failed to build backend filters:', error);
+    } catch (err) {
+      console.error('Failed to build backend filters:', err);
       return {};
     }
   }, [advancedFilters, joinOperator]);
+
+  const backendSortingParams = useMemo(() => {
+    if (!sort?.length) return undefined;
+    return { sort };
+  }, [sort]);
+
+  const filterFingerprint = useMemo(
+    () => JSON.stringify(backendFilterParams),
+    [backendFilterParams],
+  );
+  const sortFingerprint = useMemo(
+    () => JSON.stringify(backendSortingParams),
+    [backendSortingParams],
+  );
+
+  const paramsRef = useRef({
+    filterFingerprint,
+    sortFingerprint,
+    perPage,
+  });
+
+  const effectivePage = useMemo(() => {
+    const prev = paramsRef.current;
+    const current = { filterFingerprint, sortFingerprint, perPage };
+
+    const hasChanged =
+      prev.filterFingerprint !== current.filterFingerprint ||
+      prev.sortFingerprint !== current.sortFingerprint ||
+      prev.perPage !== current.perPage;
+
+    paramsRef.current = current;
+
+    if (hasChanged && page !== DEFAULT_PAGE) {
+      isUpdatingPageRef.current = true;
+      return DEFAULT_PAGE;
+    }
+
+    return page;
+  }, [filterFingerprint, sortFingerprint, perPage, page]);
+
+  useEffect(() => {
+    lastFetchedQueryRef.current = '';
+  }, [effectivePage]);
 
   const queryParams = useMemo((): TradeQueryParams => {
     return {
       ...backendFilterParams,
       ...backendSortingParams,
-      page,
+      page: effectivePage,
       page_size: perPage,
     };
-  }, [backendFilterParams, backendSortingParams, page, perPage]);
+  }, [backendFilterParams, backendSortingParams, effectivePage, perPage]);
+
+  const queryKey = useMemo(() => JSON.stringify(queryParams), [queryParams]);
 
   const fetchTrades = useCallback(async () => {
+    if (!isMountedRef.current) return;
+
+    if (queryKey === lastFetchedQueryRef.current) {
+      return;
+    }
+
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+
+    abortControllerRef.current = new AbortController();
+    lastFetchedQueryRef.current = queryKey;
+
     try {
       setLoading(true);
       setError(null);
 
-      const response: PaginatedResponse<TradeRow> =
-        await getTrades(queryParams);
+      const response: PaginatedResponse<TradeRow> = await getTrades(
+        queryParams,
+        // abortControllerRef.current.signal,
+      );
 
-      setData(response.results);
-      setTotalCount(response.count);
-      setNextPage(response.next);
-      setPreviousPage(response.previous);
+      if (!abortControllerRef.current.signal.aborted) {
+        setData(response.results);
+        setTotalCount(response.count);
+        setNextPage(response.next);
+        setPreviousPage(response.previous);
+
+        if (isUpdatingPageRef.current && page !== DEFAULT_PAGE) {
+          isUpdatingPageRef.current = false;
+          setTimeout(() => {
+            void setPage(DEFAULT_PAGE);
+          }, 0);
+        }
+      }
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : '';
-
-      if (errorMessage.toLowerCase().includes(INVALID_PAGE_ERROR)) {
-        void setPage(DEFAULT_PAGE);
+      if (err instanceof Error && err.name === 'AbortError') {
         return;
       }
 
-      setError(errorMessage || GENERIC_ERROR_MESSAGE);
-      console.error('Error fetching trade data:', err);
+      const errorMessage = err instanceof Error ? err.message : '';
+
+      if (errorMessage.toLowerCase().includes(INVALID_PAGE_ERROR)) {
+        if (page !== DEFAULT_PAGE) {
+          lastFetchedQueryRef.current = '';
+          void setPage(DEFAULT_PAGE);
+        }
+        return;
+      }
+
+      if (!abortControllerRef.current?.signal.aborted) {
+        setError(errorMessage || GENERIC_ERROR_MESSAGE);
+        console.error('Error fetching trade data:', err);
+      }
     } finally {
-      setLoading(false);
+      if (!abortControllerRef.current?.signal.aborted) {
+        setLoading(false);
+      }
     }
-  }, [queryParams, setPage]);
+  }, [queryKey, queryParams, page, setPage]);
 
   useEffect(() => {
-    if (isHydrated) {
-      fetchTrades();
+    void fetchTrades();
+
+    return () => {
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
+    };
+  }, [fetchTrades]);
+
+  useEffect(() => {
+    if (refetchTrigger > 0) {
+      lastFetchedQueryRef.current = '';
     }
-  }, [fetchTrades, refetchTrigger, isHydrated]);
+  }, [refetchTrigger]);
 
   const refetch = useCallback(() => {
+    lastFetchedQueryRef.current = '';
     setRefetchTrigger((prev) => prev + 1);
   }, []);
 
