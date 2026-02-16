@@ -15,9 +15,10 @@ import {
 } from '@/src/components/ui/select';
 import { paginationStyles } from '@/src/config/component-styles';
 
-interface DataTablePaginationProps<TData> extends React.ComponentProps<'div'> {
+interface DataTablePaginationProps<TData> {
   table: Table<TData>;
   totalCount: number;
+  onToggle: (id: string | null) => void;
   loading?: boolean;
   pageSizeOptions?: number[];
 }
@@ -27,6 +28,7 @@ const LIMIT_OFSET_PAGINATION = 5000;
 export function DataTablePagination<TData>({
   table,
   totalCount,
+  onToggle,
   loading = false,
   pageSizeOptions = [10, 20, 30, 40, 50],
 }: DataTablePaginationProps<TData>) {
@@ -61,7 +63,10 @@ export function DataTablePagination<TData>({
         <div className={paginationStyles.buttonGroup}>
           <button
             className={paginationStyles.button}
-            onClick={() => table.setPageIndex(0)}
+            onClick={() => {
+              onToggle(null);
+              table.setPageIndex(0);
+            }}
             disabled={isDisabled([!table.getCanPreviousPage()])}
             aria-label="First page"
           >
@@ -70,16 +75,21 @@ export function DataTablePagination<TData>({
 
           <button
             className={paginationStyles.button}
-            onClick={() => table.previousPage()}
+            onClick={() => {
+              onToggle(null);
+              table.previousPage();
+            }}
             disabled={isDisabled([!table.getCanPreviousPage()])}
             aria-label="Previous page"
           >
             <ChevronLeft className="h-4 w-4" />
           </button>
-
           <button
             className={paginationStyles.button}
-            onClick={() => table.nextPage()}
+            onClick={() => {
+              onToggle(null);
+              table.nextPage();
+            }}
             disabled={isDisabled([!table.getCanNextPage()])}
             aria-label="Next page"
           >
@@ -88,7 +98,10 @@ export function DataTablePagination<TData>({
 
           <button
             className={paginationStyles.button}
-            onClick={() => table.setPageIndex(pageCount - 1)}
+            onClick={() => {
+              onToggle(null);
+              table.setPageIndex(pageCount - 1);
+            }}
             disabled={isDisabled([
               !table.getCanNextPage(),
               pageCount > LIMIT_OFSET_PAGINATION,

@@ -47,7 +47,15 @@ export function DataTable<TData extends { id: string }>({
               <TableRow key={headerGroup.id}>
                 {/* Expand icon header */}
                 <TableHead className="w-8 px-1">
-                  {loading ? <Skeleton className="h-4 w-4" /> : null}
+                  <span className="relative inline-block">
+                    <span className={loading ? 'invisible' : ''} />
+
+                    {loading && (
+                      <span className="absolute inset-0 flex items-center">
+                        <Skeleton className="h-4 w-4" />
+                      </span>
+                    )}
+                  </span>
                 </TableHead>
 
                 {headerGroup.headers.map((header) => (
@@ -56,15 +64,21 @@ export function DataTable<TData extends { id: string }>({
                     colSpan={header.colSpan}
                     className={tableStyles.header}
                   >
-                    {loading ? (
-                      <Skeleton className="h-4 w-full" />
-                    ) : (
-                      !header.isPlaceholder &&
-                      flexRender(
-                        header.column.columnDef.header,
-                        header.getContext(),
-                      )
-                    )}
+                    <span className="relative inline-block">
+                      <span className={loading ? 'invisible' : ''}>
+                        {!header.isPlaceholder &&
+                          flexRender(
+                            header.column.columnDef.header,
+                            header.getContext(),
+                          )}
+                      </span>
+
+                      {loading && (
+                        <span className="absolute inset-0 flex items-center">
+                          <Skeleton className="h-4 w-full" />
+                        </span>
+                      )}
+                    </span>
                   </TableHead>
                 ))}
               </TableRow>
@@ -84,6 +98,7 @@ export function DataTable<TData extends { id: string }>({
         <DataTablePagination
           table={table}
           totalCount={totalCount}
+          onToggle={onToggleRow ?? (() => {})}
           loading={loading}
         />
         {actionBar &&

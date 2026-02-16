@@ -34,30 +34,38 @@ export function DataTableRow<TData extends { id: string }>({
       >
         {/* Expand icon */}
         <TableCell className="w-8 px-1">
-          {loading ? (
-            <Skeleton className="h-4 w-4" />
-          ) : (
-            <button
-              onClick={onToggle}
-              className="text-brand flex cursor-pointer items-center justify-center p-1"
-              aria-label={isOpen ? 'Collapse row' : 'Expand row'}
-            >
-              {isOpen ? (
-                <ChevronUp size={18} className={iconClass} />
-              ) : (
-                <ChevronDown size={18} className={iconClass} />
-              )}
-            </button>
-          )}
+          <button
+            onClick={onToggle}
+            className="text-brand flex cursor-pointer items-center justify-center p-1"
+            aria-label={isOpen ? 'Collapse row' : 'Expand row'}
+          >
+            {loading ? (
+              <Skeleton className="h-4.5 w-4.5" />
+            ) : isOpen ? (
+              <ChevronUp size={18} className={iconClass} />
+            ) : (
+              <ChevronDown size={18} className={iconClass} />
+            )}
+          </button>
         </TableCell>
 
         {cells.map((cell) => (
-          <TableCell key={cell.id} className="h-12 px-2 py-2">
-            {loading ? (
-              <Skeleton className="h-4 w-full" />
-            ) : (
-              flexRender(cell.column.columnDef.cell, cell.getContext())
-            )}
+          <TableCell key={cell.id} className="relative h-12 px-2 py-2">
+            <span className="relative inline-block">
+              <span
+                className={
+                  loading ? 'invisible line-clamp-0' : 'flex items-center'
+                }
+              >
+                {flexRender(cell.column.columnDef.cell, cell.getContext())}
+              </span>
+
+              {loading && (
+                <span className="absolute inset-0 flex items-center">
+                  <Skeleton className="h-3 w-full" />
+                </span>
+              )}
+            </span>
           </TableCell>
         ))}
       </TableRow>
