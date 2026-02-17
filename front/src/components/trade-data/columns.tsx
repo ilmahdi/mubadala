@@ -176,7 +176,6 @@ export const columns: ColumnDef<TradeRow>[] = [
     ),
     cell: textCell(styles.label),
     meta: { label: 'Product', variant: 'text', icon: Package },
-    enableSorting: true,
   },
   {
     id: 'flow_label',
@@ -250,7 +249,6 @@ export const columns: ColumnDef<TradeRow>[] = [
       ],
     },
     enableColumnFilter: true,
-    enableSorting: true,
   },
   {
     id: 'country_code',
@@ -273,6 +271,7 @@ export const columns: ColumnDef<TradeRow>[] = [
       },
     },
     enableColumnFilter: true,
+    enableSorting: true,
   },
   {
     id: 'country_name',
@@ -282,7 +281,6 @@ export const columns: ColumnDef<TradeRow>[] = [
     ),
     cell: textCell(styles.region),
     meta: { label: 'Country', variant: 'text', icon: Flag },
-    enableSorting: true,
   },
   {
     id: 'hs_chapter_code',
@@ -297,6 +295,7 @@ export const columns: ColumnDef<TradeRow>[] = [
     cell: textCell(styles.code),
     meta: { label: 'HS Chapter Code', variant: 'text', icon: Barcode },
     enableColumnFilter: true,
+    enableSorting: true,
   },
   {
     id: 'hs_chapter_label',

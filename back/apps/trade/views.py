@@ -63,7 +63,7 @@ class TradeListView(APIView):
         if ordering:
             queryset = queryset.order_by(*ordering)
         else:
-            queryset = queryset.order_by("-trade_date")
+            queryset = queryset.order_by("-trade_date", "id")
 
         # Paginate
         paginator = self.pagination_class()

@@ -13,10 +13,19 @@ to dimension relationships (e.g., "country__continent", "hs_product__hs_product_
 """
 
 from typing import Dict, List, Optional, Any
-from django.db.models import Q
+from django.db.models import Q, Subquery
 from decimal import Decimal, InvalidOperation
 from datetime import datetime, date, timezone
 import logging
+
+from .models import (
+    HsProduct,
+    UsageGroup,
+    RemarkableProduct,
+    Ctci,
+    Country,
+    Flow,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -54,6 +63,18 @@ FIELD_MAPPING = {
     "weight_kg": "weight_kg",
     "value_dhs": "value_dhs",
     "supplementary_unit": "supplementary_unit",
+}
+FOREIGN_KEY_SUBQUERY_MAP = {
+    "hs_product_code": (HsProduct, "hs_product_code", "hs_product"),
+    "usage_group_code": (UsageGroup, "usage_group_code", "usage_group"),
+    "remarkable_product_code": (
+        RemarkableProduct,
+        "remarkable_product_code",
+        "remarkable_product",
+    ),
+    "ctci_group_code": (Ctci, "ctci_group_code", "ctci"),
+    "country_code": (Country, "country_code", "country"),
+    "flow_code": (Flow, "flow_code", "flow"),
 }
 
 
@@ -115,6 +136,26 @@ def _build_single_filter_q(cfg: Dict[str, Any]) -> Optional[Q]:
     )
 
     # special operators
+    if field in FOREIGN_KEY_SUBQUERY_MAP and variant == "text":
+        model, dim_pk_field, fk_field = FOREIGN_KEY_SUBQUERY_MAP[field]
+
+        lookup = _resolve_lookup(op, variant)
+        if not lookup:
+            return None
+
+        prepared = _prepare_value(value, variant, op)
+        if not prepared:
+            return None
+
+        matching = (
+            model.objects.filter(**{f"{dim_pk_field}__{lookup}": prepared})
+            .order_by()  # remove default ordering (VERY important)
+            .values(dim_pk_field)
+        )
+
+        q = Q(**{f"{fk_field}__in": Subquery(matching)})
+
+        return ~q if op in NEGATED_OPERATORS else q
     if op == "isEmpty":
         if variant in DATE_VARIANTS | NUMERIC_VARIANTS | {"range"}:
             return Q(**{f"{mapped_field}__isnull": True})
