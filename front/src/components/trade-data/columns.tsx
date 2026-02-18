@@ -99,7 +99,7 @@ const FLOW_STYLES: Record<string, string> = {
 const styles = {
   code: tableStyles.cellCode,
   label:
-    'text-xs font-medium text-gray-800 first-letter:uppercase lowercase line-clamp-1 leading-snug truncate whitespace-break-spaces', // improve later
+    'text-xs font-medium text-gray-800 first-letter:uppercase lowercase line-clamp-1 leading-snug truncate whitespace-break-spaces',
   region:
     'text-xs font-medium text-gray-500 first-letter:uppercase lowercase line-clamp-2 leading-snug',
   numeric: tableStyles.cellNumeric,
@@ -176,6 +176,7 @@ export const columns: ColumnDef<TradeRow>[] = [
     ),
     cell: textCell(styles.label),
     meta: { label: 'Product', variant: 'text', icon: Package },
+    enableSorting: false,
   },
   {
     id: 'flow_label',
@@ -185,6 +186,7 @@ export const columns: ColumnDef<TradeRow>[] = [
     ),
     cell: flowCell,
     meta: { label: 'Flow', variant: 'multiSelect', icon: ArrowLeftRight },
+    enableSorting: false,
   },
   {
     id: 'flow_code',
@@ -249,6 +251,7 @@ export const columns: ColumnDef<TradeRow>[] = [
       ],
     },
     enableColumnFilter: true,
+    enableSorting: false,
   },
   {
     id: 'country_code',
@@ -281,6 +284,7 @@ export const columns: ColumnDef<TradeRow>[] = [
     ),
     cell: textCell(styles.region),
     meta: { label: 'Country', variant: 'text', icon: Flag },
+    enableSorting: false,
   },
   {
     id: 'hs_chapter_code',
@@ -309,6 +313,7 @@ export const columns: ColumnDef<TradeRow>[] = [
     ),
     cell: textCell(styles.label),
     meta: { label: 'HS Chapter', variant: 'text', icon: Package },
+    enableSorting: false,
   },
   {
     id: 'usage_group_code',
@@ -323,6 +328,7 @@ export const columns: ColumnDef<TradeRow>[] = [
     cell: textCell(styles.code),
     meta: { label: 'Usage Code', variant: 'text', icon: Tag },
     enableColumnFilter: true,
+    enableSorting: false,
   },
   {
     id: 'usage_group_label',
@@ -332,6 +338,7 @@ export const columns: ColumnDef<TradeRow>[] = [
     ),
     cell: textCell(styles.label),
     meta: { label: 'Usage', variant: 'text', icon: Layers },
+    enableSorting: false,
   },
   {
     id: 'remarkable_product_code',
@@ -346,6 +353,7 @@ export const columns: ColumnDef<TradeRow>[] = [
     cell: textCell(styles.code),
     meta: { label: 'Remarkable Code', variant: 'text', icon: Box },
     enableColumnFilter: true,
+    enableSorting: false,
   },
   {
     id: 'remarkable_product_label',
@@ -359,6 +367,7 @@ export const columns: ColumnDef<TradeRow>[] = [
     ),
     cell: textCell(styles.label),
     meta: { label: 'Remarkable Product', variant: 'text', icon: Package },
+    enableSorting: false,
   },
   {
     id: 'ctci_section_code',
@@ -373,6 +382,7 @@ export const columns: ColumnDef<TradeRow>[] = [
     cell: textCell(styles.code),
     meta: { label: 'CTCI Section Code', variant: 'text', icon: Hash },
     enableColumnFilter: true,
+    enableSorting: false,
   },
   {
     id: 'ctci_section_label',
@@ -386,6 +396,7 @@ export const columns: ColumnDef<TradeRow>[] = [
     ),
     cell: textCell(styles.label),
     meta: { label: 'CTCI Section', variant: 'text', icon: Boxes },
+    enableSorting: false,
   },
   {
     id: 'ctci_division_code',
@@ -400,6 +411,7 @@ export const columns: ColumnDef<TradeRow>[] = [
     cell: textCell(styles.code),
     meta: { label: 'CTCI Division Code', variant: 'text', icon: Hash },
     enableColumnFilter: true,
+    enableSorting: false,
   },
   {
     id: 'ctci_division_label',
@@ -413,6 +425,7 @@ export const columns: ColumnDef<TradeRow>[] = [
     ),
     cell: textCell(styles.label),
     meta: { label: 'CTCI Division', variant: 'text', icon: Boxes },
+    enableSorting: false,
   },
   {
     id: 'ctci_group_code',
@@ -427,6 +440,7 @@ export const columns: ColumnDef<TradeRow>[] = [
     cell: textCell(styles.code),
     meta: { label: 'CTCI Group Code', variant: 'text', icon: Hash },
     enableColumnFilter: true,
+    enableSorting: false,
   },
   {
     id: 'ctci_group_label',
@@ -440,6 +454,7 @@ export const columns: ColumnDef<TradeRow>[] = [
     ),
     cell: textCell(styles.label),
     meta: { label: 'CTCI Group', variant: 'text', icon: Boxes },
+    enableSorting: false,
   },
   {
     id: 'value_dhs',
@@ -481,5 +496,6 @@ export const columns: ColumnDef<TradeRow>[] = [
       <span className={styles.muted}>{`${getValue() || '—'}`}</span>
     ),
     meta: { label: 'Unit', variant: 'text' },
+    enableSorting: false,
   },
 ];
