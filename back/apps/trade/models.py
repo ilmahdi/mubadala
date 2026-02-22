@@ -247,3 +247,12 @@ class ProcessedFile(models.Model):
 
     def __str__(self):
         return f"{self.filename} ({self.processed_at})"
+
+
+class QueryCountCache(models.Model):
+    query_hash = models.CharField(max_length=64, unique=True)
+    count = models.BigIntegerField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = "query_count_cache"
