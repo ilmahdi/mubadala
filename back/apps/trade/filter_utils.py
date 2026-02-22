@@ -65,16 +65,54 @@ FIELD_MAPPING = {
     "supplementary_unit": "supplementary_unit",
 }
 FOREIGN_KEY_SUBQUERY_MAP = {
-    "hs_product_code": (HsProduct, "hs_product_code", "hs_product"),
-    "usage_group_code": (UsageGroup, "usage_group_code", "usage_group"),
-    "remarkable_product_code": (
-        RemarkableProduct,
-        "remarkable_product_code",
-        "remarkable_product",
-    ),
-    "ctci_group_code": (Ctci, "ctci_group_code", "ctci"),
-    "country_code": (Country, "country_code", "country"),
-    "flow_code": (Flow, "flow_code", "flow"),
+    "hs_product_code": {
+        "model": HsProduct,
+        "filter_field": "hs_product_code",
+        "return_field": "hs_product_code",
+        "fact_field": "hs_product",
+    },
+    "hs_product_label": {
+        "model": HsProduct,
+        "filter_field": "hs_product_label",
+        "return_field": "hs_product_code",
+        "fact_field": "hs_product",
+    },
+    "hs_chapter_label": {
+        "model": HsProduct,
+        "filter_field": "hs_chapter_label",
+        "return_field": "hs_product_code",
+        "fact_field": "hs_product",
+    },
+    "usage_group_code": {
+        "model": UsageGroup,
+        "filter_field": "usage_group_code",
+        "return_field": "usage_group_code",
+        "fact_field": "usage_group",
+    },
+    "remarkable_product_code": {
+        "model": RemarkableProduct,
+        "filter_field": "remarkable_product_code",
+        "return_field": "remarkable_product_code",
+        "fact_field": "remarkable_product",
+    },
+    "ctci_group_code": {
+        "model": Ctci,
+        "filter_field": "ctci_group_code",
+        "return_field": "ctci_group_code",
+        "fact_field": "ctci",
+    },
+    "country_code": {
+        "model": Country,
+        "filter_field": "country_code",
+        "return_field": "country_code",
+        "fact_field": "country",
+    },
+    "flow_code": {
+        "model": Flow,
+        "filter_field": "flow_code",
+        "return_field": "flow_code",
+        "fact_field": "flow",
+    },
 }
 
 
@@ -137,23 +175,23 @@ def _build_single_filter_q(cfg: Dict[str, Any]) -> Optional[Q]:
 
     # special operators
     if field in FOREIGN_KEY_SUBQUERY_MAP and variant == "text":
-        model, dim_pk_field, fk_field = FOREIGN_KEY_SUBQUERY_MAP[field]
+        config = FOREIGN_KEY_SUBQUERY_MAP[field]
+
+        model = config["model"]
+        filter_field = config["filter_field"]
+        return_field = config["return_field"]
+        fact_field = config["fact_field"]
 
         lookup = _resolve_lookup(op, variant)
-        if not lookup:
-            return None
-
         prepared = _prepare_value(value, variant, op)
-        if not prepared:
-            return None
 
         matching = (
-            model.objects.filter(**{f"{dim_pk_field}__{lookup}": prepared})
-            .order_by()  # remove default ordering (VERY important)
-            .values(dim_pk_field)
+            model.objects.filter(**{f"{filter_field}__{lookup}": prepared})
+            .order_by()
+            .values(return_field)
         )
 
-        q = Q(**{f"{fk_field}__in": Subquery(matching)})
+        q = Q(**{f"{fact_field}__in": Subquery(matching)})
 
         return ~q if op in NEGATED_OPERATORS else q
     if op == "isEmpty":
