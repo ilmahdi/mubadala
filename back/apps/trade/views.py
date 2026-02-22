@@ -4,7 +4,7 @@ import logging
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.exceptions import ValidationError
 from rest_framework.generics import ListAPIView
 
@@ -19,7 +19,7 @@ logger = logging.getLogger(__name__)
 class TradeListView(APIView):
     """POST endpoint for trade data with filtering, sorting, and pagination."""
 
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
     pagination_class = TradePagination
 
     # Map frontend field names to Django model fields
@@ -95,10 +95,10 @@ class TradeListView(APIView):
 class CountryListAPIView(ListAPIView):
     queryset = Country.objects.all()
     serializer_class = CountrySerializer
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
 
 
 class FlowListAPIView(ListAPIView):
     queryset = Flow.objects.all()
     serializer_class = FlowSerializer
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
