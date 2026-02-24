@@ -3,14 +3,12 @@
  * Footer for landing page with links and branding
  */
 
-'use client';
-
 import { ChartArea } from 'lucide-react';
 
 export function LandingFooter() {
   return (
     <footer
-      className="border-t border-gray-200 bg-gray-50 pt-16 pb-12"
+      className="border-t border-gray-200 bg-gray-50 pt-16 pb-10"
       id="about"
     >
       <div className="flex justify-center px-6 lg:px-10">
@@ -37,9 +35,8 @@ export function LandingFooter() {
                 </h2>
               </div>
               <p className="max-w-sm text-sm leading-relaxed text-gray-600">
-                The premier platform for Moroccan trade intelligence. We empower
-                businesses with accurate, up-to-date data on imports and exports
-                across the Kingdom.
+                The premier platform for Moroccan foreign trade data, providing
+                accurate and up-to-date records across the Kingdom.
               </p>
             </div>
 
@@ -113,7 +110,7 @@ export function LandingFooter() {
           {/* Bottom Bar */}
           <div className="flex flex-col items-center justify-between gap-4 border-t border-gray-200 pt-8 md:flex-row">
             <p className="text-xs text-gray-500">
-              © 2024 Mubadala Analytics. Morocco Trade Data.
+              © 2026 Mubadala Analytics. Morocco Trade Data.
             </p>
             <div className="flex gap-4">
               <a

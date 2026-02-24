@@ -3,19 +3,21 @@
  * Final conversion section encouraging sign-up
  */
 
-'use client';
-
+import { motion } from 'framer-motion';
 import Link from 'next/link';
-import { useAuth } from '@/src/hooks/use-auth';
-import { ArrowRight, CheckCircle, Lock } from 'lucide-react';
+import { ArrowRight, ShieldCheck, SquareArrowRight } from 'lucide-react';
 
 export function CTA() {
-  const { isAuthenticated } = useAuth();
-
   return (
     <section className="relative overflow-hidden bg-white px-6 py-24">
       <div className="relative z-10 flex justify-center">
-        <div className="relative flex w-full max-w-250 flex-col items-center gap-6 overflow-hidden rounded-2xl border border-gray-200 bg-gray-50 p-10 text-center shadow-[0_8px_30px_rgb(0,0,0,0.04)] md:p-16">
+        <motion.div
+          className="relative flex w-full max-w-300 flex-col items-center gap-8 overflow-hidden rounded-2xl border border-gray-200 bg-gray-50 p-10 text-center md:p-16"
+          initial={{ opacity: 0, y: 28 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: '-60px' }}
+          transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+        >
           {/* Morocco Pattern Background */}
           <div
             className="pointer-events-none absolute inset-0 opacity-[0.03]"
@@ -26,47 +28,49 @@ export function CTA() {
 
           {/* Content */}
           <div className="relative z-10 mx-auto flex max-w-2xl flex-col items-center gap-4">
-            <span className="text-brand text-xs font-bold tracking-[0.2em] uppercase">
+            <span className="text-brand text-xs font-bold tracking-[0.15em] uppercase">
               Get Started
             </span>
             <h2 className="text-3xl font-bold tracking-tight text-gray-900 md:text-4xl">
-              Ready to explore Moroccan trade Statistics?
+              Ready to explore Morocco&apos;s foreign trade data?
             </h2>
             <p className="text-lg leading-relaxed font-light text-gray-600">
-              Gain immediate access to verified import & export records easier
-              and faster than ever.
+              Filter, sort, and export millions of official trade records — no
+              setup required.
             </p>
           </div>
 
           {/* CTA */}
-          <div className="relative z-10 flex w-full flex-col items-center gap-6 pt-4">
+          <div className="relative z-10 flex w-full flex-col items-center gap-5">
             <Link
               href="/dashboard"
-              className="bg-brand hover:bg-brand-dark flex h-14 transform items-center justify-center gap-2 rounded-lg px-10 text-base font-bold text-white shadow-lg transition-all hover:-translate-y-0.5"
+              className="bg-brand hover:bg-brand-dark flex h-14 transform items-center justify-center gap-2 rounded-lg px-10 text-base font-semibold text-white transition-all hover:-translate-y-0.5"
             >
-              <span>
-                {isAuthenticated ? 'Go to Dashboard' : 'Get Access Now'}
-              </span>
+              <span>Get Access Now</span>
               <ArrowRight size={20} strokeWidth={2} />
             </Link>
 
             {/* Trust Indicators */}
-            <div className="flex flex-wrap justify-center gap-x-6 gap-y-2 text-sm text-gray-500">
-              <div className="flex items-center gap-2">
-                <CheckCircle
+            <div className="flex flex-wrap justify-center gap-4 text-sm text-gray-500">
+              <div className="flex items-center gap-1.5">
+                <SquareArrowRight
                   className="text-gray-400"
-                  size={16}
+                  size={15}
                   strokeWidth={2}
                 />
                 <span>Instant access</span>
               </div>
-              <div className="flex items-center gap-2">
-                <Lock className="text-gray-400" size={16} strokeWidth={2} />
+              <div className="flex items-center gap-1.5">
+                <ShieldCheck
+                  className="text-gray-400"
+                  size={15}
+                  strokeWidth={2}
+                />
                 <span>Secure login</span>
               </div>
             </div>
           </div>
-        </div>
+        </motion.div>
       </div>
     </section>
   );
