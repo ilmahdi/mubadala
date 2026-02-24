@@ -12,19 +12,22 @@ import {
   CTA,
   LandingFooter,
   LandingHeader,
+  SmoothScrollProvider,
 } from '@/src/components/landing';
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-white">
-      <LandingHeader />
-      <main>
-        <Hero />
-        <DataCoverage />
-        <Features />
-        <CTA />
-      </main>
-      <LandingFooter />
-    </div>
+    <SmoothScrollProvider>
+      <div className="min-h-screen bg-white">
+        <LandingHeader />
+        <main>
+          <Hero />
+          <DataCoverage />
+          <Features />
+          <CTA />
+        </main>
+        <LandingFooter />
+      </div>
+    </SmoothScrollProvider>
   );
 }
