@@ -1,17 +1,11 @@
 import { ChartArea } from 'lucide-react';
-import {
-  headerStyles,
-  avatarStyles,
-  combineStyles,
-} from '@/src/config/component-styles';
+import { headerStyles } from '@/src/config/component-styles';
 import Link from 'next/link';
+import { UserMenu } from '@/src/components/auth/UserMenu';
 
 export default function Header() {
   return (
-    <header
-      className={headerStyles.container}
-      style={{ zIndex: 'var(--z-index-sticky)' }}
-    >
+    <header className={headerStyles.container + ' z-(--z-index-sticky)'}>
       <div className={headerStyles.inner}>
         <Link href="/" className="-m-1.5 flex items-center gap-2 p-1.5">
           <div className={headerStyles.logo}>
@@ -23,17 +17,7 @@ export default function Header() {
         </Link>
 
         <div className={headerStyles.actions}>
-          <button
-            className={combineStyles(
-              avatarStyles.base,
-              avatarStyles.md,
-              avatarStyles.brand,
-              avatarStyles.interactive,
-            )}
-            aria-label="User account"
-          >
-            AE
-          </button>
+          <UserMenu />
         </div>
       </div>
     </header>
