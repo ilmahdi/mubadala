@@ -72,7 +72,7 @@ export function DataTableRow<TData extends { id: string }>({
 
       {/* Expanded row (disabled while loading) */}
       {!loading && isOpen && (
-        <TableRow className="border-b bg-gray-50/40 hover:bg-transparent">
+        <TableRow className="border-b bg-gray-50/40 hover:bg-gray-50/40">
           {/* keep the w-0, it fixes a UI issue */}
           <TableCell
             colSpan={cells.length + 1}

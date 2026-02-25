@@ -201,6 +201,7 @@ export function DataTableDateFilter<TData>({
           <Calendar
             autoFocus
             captionLayout="dropdown"
+            startMonth={new Date(1998, 0)}
             mode="range"
             selected={
               getIsDateRange(selectedDates)
@@ -212,6 +213,7 @@ export function DataTableDateFilter<TData>({
         ) : (
           <Calendar
             captionLayout="dropdown"
+            startMonth={new Date(1998, 0)}
             mode="single"
             selected={
               !getIsDateRange(selectedDates) ? selectedDates[0] : undefined

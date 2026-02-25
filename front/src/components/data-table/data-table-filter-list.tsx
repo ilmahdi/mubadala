@@ -845,6 +845,7 @@ function FilterInputRender<TData>({
                 aria-label={`Select ${columnMeta?.label} date range`}
                 autoFocus
                 captionLayout="dropdown"
+                startMonth={new Date(1998, 0)}
                 mode="range"
                 selected={
                   dateValue.length === 2
@@ -876,6 +877,7 @@ function FilterInputRender<TData>({
                 aria-label={`Select ${columnMeta?.label} date`}
                 autoFocus
                 captionLayout="dropdown"
+                startMonth={new Date(1998, 0)}
                 mode="single"
                 selected={
                   dateValue[0] ? new Date(Number(dateValue[0])) : undefined
