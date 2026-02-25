@@ -21,6 +21,7 @@ function Calendar({
   showOutsideDays = true,
   captionLayout = 'label',
   buttonVariant = 'ghost',
+  startMonth = new Date(1926, 0),
   formatters,
   components,
   ...props
@@ -60,6 +61,7 @@ function Calendar({
         className,
       )}
       captionLayout={captionLayout}
+      startMonth={startMonth}
       formatters={{
         formatMonthDropdown: (date) =>
           date.toLocaleString('default', { month: 'short' }),
