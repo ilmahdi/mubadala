@@ -30,7 +30,7 @@ export function SignInButton({
   return (
     <Button
       onClick={handleSignIn}
-      className={className}
+      className={className + ' cursor-pointer'}
       style={style}
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}

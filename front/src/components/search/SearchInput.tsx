@@ -35,7 +35,7 @@ export const SearchInput = memo(
             onKeyDown={onKeyDown}
             placeholder={placeholder}
             className={cn(
-              'w-full rounded-lg border-0 py-2.5 pl-10 text-sm',
+              'w-full rounded-lg border-0 py-2.5 pl-10 text-sm lowercase',
               'focus:outline-none',
               'placeholder:text-gray-400',
               value ? 'pr-10' : 'pr-4',
