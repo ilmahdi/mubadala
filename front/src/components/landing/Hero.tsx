@@ -17,7 +17,7 @@ export function Hero() {
       {/* Decorative hero image (behind content) */}
       <div className="pointer-events-none absolute inset-0 z-0">
         <Image
-          src="/images/morocco-map-hero.png"
+          src="/images/morocco-map-hero.webp"
           alt=""
           fill
           sizes="100vw"
