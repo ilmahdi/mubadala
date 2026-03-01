@@ -1,7 +1,9 @@
 /**
  * Authentication guard component for protected routes.
  *
- * Redirects unauthenticated users to sign-in page.
+ * Redirects unauthenticated users to the sign-in page.
+ * Also redirects when the Backend token refresh has failed so the user can
+ * re-authenticate instead of silently receiving 401 errors.
  */
 'use client';
 
@@ -20,21 +22,28 @@ export function AuthGuard({ children, fallback }: AuthGuardProps) {
 
   useEffect(() => {
     if (status === 'unauthenticated') {
-      router.push('/auth/signin');
+      router.replace('/auth/signin');
+      return;
     }
-  }, [status, router]);
+    // Force re-login when the background Backend token refresh has failed
+    if (status === 'authenticated' && session?.error === 'RefreshTokenError') {
+      router.replace('/auth/signin');
+    }
+  }, [status, session?.error, router]);
 
   if (status === 'loading') {
     return (
       fallback || (
         <div className="flex min-h-screen items-center justify-center">
-          <div className="border-brand h-32 w-32 animate-spin rounded-full border-t-2 border-b-2"></div>
+          <div className="border-brand h-16 w-16 animate-spin rounded-full border-t-2 border-b-2" />
         </div>
       )
     );
   }
 
-  if (!session) {
+  // Don't render children until we know the user is authenticated and the
+  // token is healthy — avoids a brief flash of protected content.
+  if (!session || session.error === 'RefreshTokenError') {
     return null;
   }
 
