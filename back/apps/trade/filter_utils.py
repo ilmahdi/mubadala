@@ -173,6 +173,19 @@ def _build_single_filter_q(cfg: Dict[str, Any]) -> Optional[Q]:
         "Building filter: %s -> %s %s %r (%s)", field, mapped_field, op, value, variant
     )
 
+    # isEmpty / isNotEmpty must be handled before the subquery branch because
+    # those operators have no entry in LOOKUPS and would produce an invalid ORM
+    # filter if they fell through into the subquery logic.
+    if op == "isEmpty":
+        if variant in DATE_VARIANTS | NUMERIC_VARIANTS | {"range"}:
+            return Q(**{f"{mapped_field}__isnull": True})
+        return Q(**{f"{mapped_field}__isnull": True}) | Q(**{mapped_field: ""})
+
+    if op == "isNotEmpty":
+        if variant in DATE_VARIANTS | NUMERIC_VARIANTS | {"range"}:
+            return ~Q(**{f"{mapped_field}__isnull": True})
+        return ~Q(**{f"{mapped_field}__isnull": True}) & ~Q(**{mapped_field: ""})
+
     # special operators
     if field in FOREIGN_KEY_SUBQUERY_MAP and variant == "text":
         config = FOREIGN_KEY_SUBQUERY_MAP[field]
@@ -194,15 +207,6 @@ def _build_single_filter_q(cfg: Dict[str, Any]) -> Optional[Q]:
         q = Q(**{f"{fact_field}__in": Subquery(matching)})
 
         return ~q if op in NEGATED_OPERATORS else q
-    if op == "isEmpty":
-        if variant in DATE_VARIANTS | NUMERIC_VARIANTS | {"range"}:
-            return Q(**{f"{mapped_field}__isnull": True})
-        return Q(**{f"{mapped_field}__isnull": True}) | Q(**{mapped_field: ""})
-
-    if op == "isNotEmpty":
-        if variant in DATE_VARIANTS | NUMERIC_VARIANTS | {"range"}:
-            return ~Q(**{f"{mapped_field}__isnull": True})
-        return ~Q(**{f"{mapped_field}__isnull": True}) & ~Q(**{mapped_field: ""})
 
     if op == "isBetween":
         return _build_range_q(mapped_field, value, variant)
