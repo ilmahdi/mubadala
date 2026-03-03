@@ -25,8 +25,7 @@ class TradeListView(APIView):
     # Map frontend field names to Django model fields
     ORDERING_FIELD_MAP = {
         "hs_product_code": "hs_product__hs_product_code",
-        "hs_product_label": "hs_product__hs_product_label",
-        "country_name": "country__country_name",
+        "country_code": "country__country_code",
         "continent": "country__continent",
         "flow_code": "flow__flow_code",
         "value_dhs": "value_dhs",

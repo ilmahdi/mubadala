@@ -101,7 +101,7 @@ const styles = {
   label:
     'text-xs font-medium text-gray-800 first-letter:uppercase lowercase line-clamp-1 leading-snug truncate whitespace-break-spaces',
   region:
-    'text-xs font-medium text-gray-500 first-letter:uppercase lowercase line-clamp-2 leading-snug',
+    'text-xs font-medium text-gray-500 first-letter:uppercase lowercase line-clamp-2 leading-snug max-w-[200px] truncate',
   numeric: tableStyles.cellNumeric,
   muted: tableStyles.cellMuted,
   flowBase: flowBadgeStyles.base,
@@ -299,7 +299,7 @@ export const columns: ColumnDef<TradeRow>[] = [
     cell: textCell(styles.code),
     meta: { label: 'HS Chapter Code', variant: 'text', icon: Barcode },
     enableColumnFilter: true,
-    enableSorting: true,
+    enableSorting: false,
   },
   {
     id: 'hs_chapter_label',
