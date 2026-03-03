@@ -1,9 +1,9 @@
 /**
- * Middleware for Next.js authentication and route protection.
+ * Proxy for Next.js authentication and route protection.
  *
  * Handles authentication checks before routes are rendered.
  */
-export { auth as middleware } from '@/src/lib/auth';
+export { auth as proxy } from '@/src/lib/auth';
 
 export const config = {
   matcher: [

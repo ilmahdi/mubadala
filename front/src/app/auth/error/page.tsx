@@ -5,6 +5,7 @@
  */
 'use client';
 
+import { Suspense } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
@@ -42,7 +43,7 @@ const ERROR_MESSAGES: Record<string, { title: string; description: string }> = {
   },
 };
 
-export default function AuthErrorPage() {
+function AuthErrorContent() {
   const searchParams = useSearchParams();
   const errorCode = searchParams.get('error') ?? 'Default';
   const { title, description } =
@@ -106,5 +107,13 @@ export default function AuthErrorPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function AuthErrorPage() {
+  return (
+    <Suspense>
+      <AuthErrorContent />
+    </Suspense>
   );
 }
