@@ -18,124 +18,18 @@ from decimal import Decimal, InvalidOperation
 from datetime import datetime, date, timezone
 import logging
 
-from .models import (
-    HsProduct,
-    UsageGroup,
-    RemarkableProduct,
-    Ctci,
-    Country,
-    Flow,
+from .field_config import (
+    FIELD_MAPPING,
+    FOREIGN_KEY_SUBQUERY_MAP,
+    LOOKUPS,
+    NEGATED_OPERATORS,
+    ARRAY_OPERATORS,
+    DATE_VARIANTS,
+    NUMERIC_VARIANTS,
+    TRUE_STRINGS,
 )
 
 logger = logging.getLogger(__name__)
-
-
-# Map frontend field names to TradeFact dimension relationships
-FIELD_MAPPING = {
-    # HS Product dimension
-    "hs_product_code": "hs_product__hs_product_code",
-    "hs_product_label": "hs_product__hs_product_label",
-    "hs_chapter_code": "hs_product__hs_chapter_code",
-    "hs_chapter_label": "hs_product__hs_chapter_label",
-    # Usage Group dimension
-    "usage_group_code": "usage_group__usage_group_code",
-    "usage_group_label": "usage_group__usage_group_label",
-    # Remarkable Product dimension
-    "remarkable_product_code": "remarkable_product__remarkable_product_code",
-    "remarkable_product_label": "remarkable_product__remarkable_product_label",
-    # CTCI dimension
-    "ctci_section_code": "ctci__ctci_section_code",
-    "ctci_section_label": "ctci__ctci_section_label",
-    "ctci_division_code": "ctci__ctci_division_code",
-    "ctci_division_label": "ctci__ctci_division_label",
-    "ctci_group_code": "ctci__ctci_group_code",
-    "ctci_group_label": "ctci__ctci_group_label",
-    # Country dimension
-    "country_code": "country__country_code",
-    "country_name": "country__country_name",
-    "continent": "country__continent",
-    # Flow dimension
-    "flow_code": "flow__flow_code",
-    "flow_label": "flow__flow_label",
-    # Time dimension (rename date -> trade_date)
-    "date": "trade_date",
-    # Metrics (no mapping needed, direct fields)
-    "weight_kg": "weight_kg",
-    "value_dhs": "value_dhs",
-    "supplementary_unit": "supplementary_unit",
-}
-FOREIGN_KEY_SUBQUERY_MAP = {
-    "hs_product_code": {
-        "model": HsProduct,
-        "filter_field": "hs_product_code",
-        "return_field": "hs_product_code",
-        "fact_field": "hs_product",
-    },
-    "hs_product_label": {
-        "model": HsProduct,
-        "filter_field": "hs_product_label",
-        "return_field": "hs_product_code",
-        "fact_field": "hs_product",
-    },
-    "hs_chapter_label": {
-        "model": HsProduct,
-        "filter_field": "hs_chapter_label",
-        "return_field": "hs_product_code",
-        "fact_field": "hs_product",
-    },
-    "usage_group_code": {
-        "model": UsageGroup,
-        "filter_field": "usage_group_code",
-        "return_field": "usage_group_code",
-        "fact_field": "usage_group",
-    },
-    "remarkable_product_code": {
-        "model": RemarkableProduct,
-        "filter_field": "remarkable_product_code",
-        "return_field": "remarkable_product_code",
-        "fact_field": "remarkable_product",
-    },
-    "ctci_group_code": {
-        "model": Ctci,
-        "filter_field": "ctci_group_code",
-        "return_field": "ctci_group_code",
-        "fact_field": "ctci",
-    },
-    "country_code": {
-        "model": Country,
-        "filter_field": "country_code",
-        "return_field": "country_code",
-        "fact_field": "country",
-    },
-    "flow_code": {
-        "model": Flow,
-        "filter_field": "flow_code",
-        "return_field": "flow_code",
-        "fact_field": "flow",
-    },
-}
-
-
-NUMERIC_VARIANTS = {"number", "range"}
-DATE_VARIANTS = {"date", "dateRange"}
-
-ARRAY_OPERATORS = {"inArray", "notInArray"}
-NEGATED_OPERATORS = {"ne", "notILike", "notInArray", "isNotEmpty"}
-
-LOOKUPS = {
-    "iLike": "icontains",
-    "notILike": "icontains",
-    "eq": "iexact",
-    "ne": "iexact",
-    "lt": "lt",
-    "lte": "lte",
-    "gt": "gt",
-    "gte": "gte",
-    "inArray": "in",
-    "notInArray": "in",
-}
-
-TRUE_STRINGS = {"true", "1", "yes"}
 
 
 def build_filter_q(
@@ -173,18 +67,48 @@ def _build_single_filter_q(cfg: Dict[str, Any]) -> Optional[Q]:
         "Building filter: %s -> %s %s %r (%s)", field, mapped_field, op, value, variant
     )
 
-    # isEmpty / isNotEmpty must be handled before the subquery branch because
-    # those operators have no entry in LOOKUPS and would produce an invalid ORM
-    # filter if they fell through into the subquery logic.
-    if op == "isEmpty":
-        if variant in DATE_VARIANTS | NUMERIC_VARIANTS | {"range"}:
-            return Q(**{f"{mapped_field}__isnull": True})
-        return Q(**{f"{mapped_field}__isnull": True}) | Q(**{mapped_field: ""})
+    if op in {"isEmpty", "isNotEmpty"}:
+        if field in FOREIGN_KEY_SUBQUERY_MAP:
+            config = FOREIGN_KEY_SUBQUERY_MAP[field]
+            fact_field = config["fact_field"]
+            filter_field = config["filter_field"]
+            return_field = config["return_field"]
+            model = config["model"]
 
-    if op == "isNotEmpty":
+            if filter_field == return_field:
+                null_q = Q(**{f"{fact_field}__isnull": True})
+            else:
+                # Non-PK dimension field.
+                #
+                # We evaluate the dimension query eagerly (the table has at most
+                # a few hundred rows), then pass a plain Python list to Django.
+                # This gives PostgreSQL a literal IN (...) expression which it
+                # can combine with the trade_date index via a bitmap scan, and
+                # avoids the correlated-subquery / OR plan that forces a full
+                # sequential scan on the 16M-row fact table.
+                #
+                # Also include FK-null rows because those trade_fact records have
+                # no linked dimension row, so every dimension column is NULL.
+                matching_pks = list(
+                    model.objects.filter(
+                        Q(**{f"{filter_field}__isnull": True}) | Q(**{filter_field: ""})
+                    )
+                    .order_by()
+                    .values_list(return_field, flat=True)
+                )
+                fk_null = Q(**{f"{fact_field}__isnull": True})
+                dim_empty = Q(**{f"{fact_field}__in": matching_pks})
+                null_q = fk_null | dim_empty
+
+            return null_q if op == "isEmpty" else ~null_q
+
         if variant in DATE_VARIANTS | NUMERIC_VARIANTS | {"range"}:
-            return ~Q(**{f"{mapped_field}__isnull": True})
-        return ~Q(**{f"{mapped_field}__isnull": True}) & ~Q(**{mapped_field: ""})
+            null_q = Q(**{f"{mapped_field}__isnull": True})
+            return null_q if op == "isEmpty" else ~null_q
+
+        # text / select / multiSelect (direct fact-table fields)
+        null_q = Q(**{f"{mapped_field}__isnull": True}) | Q(**{mapped_field: ""})
+        return null_q if op == "isEmpty" else ~null_q
 
     # special operators
     if field in FOREIGN_KEY_SUBQUERY_MAP and variant == "text":

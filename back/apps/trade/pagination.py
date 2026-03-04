@@ -15,7 +15,7 @@ class CachedCountPaginator(Paginator):
         self._cached_count = None
 
     def _get_query_hash(self, queryset):
-        sql = str(queryset.query)
+        sql = str(queryset.order_by().query)
         return hashlib.sha256(sql.encode()).hexdigest()
 
     def _get_cached_count(self, query_hash):
