@@ -1,6 +1,7 @@
 import { TableBody, TableRow, TableCell } from '@/src/components/ui/table';
 import { DataTableRow } from './data-table-row';
 import { Row, Table as TanStackTable } from '@tanstack/react-table';
+import { Skeleton } from './data-table-cell-skeleton';
 
 interface DataTableBodyProps<TData> {
   table: TanStackTable<TData>;
@@ -28,6 +29,29 @@ export function DataTableBody<TData extends { id: string }>({
             No data yet. Adjust your filters or run a search.
           </TableCell>
         </TableRow>
+      </TableBody>
+    );
+  }
+
+  // First-load: no rows yet but loading — render full skeleton rows
+  if (!rows.length && loading) {
+    const pageSize = table.getState().pagination.pageSize;
+    const colCount = table.getVisibleLeafColumns().length;
+    return (
+      <TableBody>
+        {Array.from({ length: pageSize }).map((_, rowIdx) => (
+          <TableRow key={rowIdx} className="border-b">
+            {/* Expand icon cell */}
+            <TableCell className="w-8 px-1">
+              <Skeleton className="h-4.5 w-4.5" />
+            </TableCell>
+            {Array.from({ length: colCount }).map((_, colIdx) => (
+              <TableCell key={colIdx} className="h-12 px-2 py-2">
+                <Skeleton className="h-3 w-full" />
+              </TableCell>
+            ))}
+          </TableRow>
+        ))}
       </TableBody>
     );
   }
