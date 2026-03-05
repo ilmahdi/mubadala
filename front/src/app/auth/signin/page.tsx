@@ -39,8 +39,8 @@ export default function SignInPage() {
       <div className="relative z-10 w-full max-w-sm">
         <div className="rounded-xl border border-gray-200 bg-white/90 p-8 shadow-lg backdrop-blur-sm">
           <div className="mb-7 text-center">
-            <div className="border-error-100 bg-error-50 mx-auto mb-5 flex h-12 w-12 items-center justify-center rounded-xl border">
-              <ChartArea className="text-error-600" size={22} strokeWidth={2} />
+            <div className="mx-auto mb-5 flex h-12 w-12 items-center justify-center rounded-xl border border-gray-100 bg-gray-50">
+              <ChartArea className="text-gray-600" size={22} strokeWidth={2} />
             </div>
 
             <h1 className={`${textStyles.heading.h4} mb-1.5`}>Welcome back</h1>
