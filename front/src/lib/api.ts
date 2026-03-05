@@ -1,3 +1,5 @@
+import { signOut } from 'next-auth/react';
+
 export const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL + '/api';
 
 export interface PaginatedResponse<T> {
@@ -59,7 +61,7 @@ function getFetchOptions(options: RequestInit = {}): RequestInit {
 
 async function handleApiError(response: Response): Promise<never> {
   if (response.status === 401) {
-    throw new Error('Authentication required. Please sign in.');
+    signOut({ callbackUrl: '/auth/signin' });
   }
 
   let errorMessage = `API request failed: ${response.status} ${response.statusText}`;

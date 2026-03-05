@@ -1,4 +1,4 @@
-import { apiGet } from '../api';
+import { apiGet, PaginatedResponse } from '../api';
 
 /**
  * Flow data structure from backend API
@@ -17,8 +17,8 @@ export interface Flow {
  */
 export async function getFlows(): Promise<Flow[]> {
   try {
-    const flows = await apiGet<Flow[]>('/flows/');
-    return flows;
+    const response = await apiGet<PaginatedResponse<Flow>>('/flows/');
+    return response.results;
   } catch (error) {
     console.error('Failed to fetch flows:', error);
     throw error;
