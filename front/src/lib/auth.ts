@@ -63,8 +63,8 @@ export const authConfig: NextAuthConfig = {
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
       authorization: {
         params: {
-          prompt: 'consent',
-          access_type: 'offline',
+          prompt: 'select_account',
+          access_type: 'online',
           response_type: 'code',
         },
       },

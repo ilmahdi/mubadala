@@ -123,7 +123,7 @@ export function DataTablePagination<TData>({
             table.setPageSize(Number(value));
           }}
         >
-          <SelectTrigger className="bg-background h-6 w-fit rounded-sm border-gray-300 py-0 text-sm outline-0 hover:border-gray-400 data-size:h-6 shadow-none">
+          <SelectTrigger className="bg-background h-6 w-fit rounded-sm border-gray-300 py-0 text-sm shadow-none outline-0 hover:border-gray-400 data-size:h-6">
             <SelectValue placeholder={table.getState().pagination.pageSize} />
           </SelectTrigger>
           <SelectContent
