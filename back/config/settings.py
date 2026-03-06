@@ -123,7 +123,7 @@ DATABASES = {
         "PORT": env("DB_PORT", "5432"),
         "CONN_MAX_AGE": 60,  # Persistent connections — reduces connection overhead
         "OPTIONS": {
-            # "sslmode": "require",
+            "sslmode": "require",
             "connect_timeout": 10,
         },
     }
@@ -147,7 +147,7 @@ SESSION_ENGINE = "django.contrib.sessions.backends.db"
 # The API endpoints using Bearer tokens are CSRF-exempt by design
 # (CSRF only applies to cookie/session-based auth).
 CSRF_COOKIE_SECURE = True
-CSRF_COOKIE_HTTPONLY = True
+CSRF_COOKIE_HTTPONLY = False
 CSRF_COOKIE_SAMESITE = "Lax"
 CSRF_TRUSTED_ORIGINS = env_list("CSRF_TRUSTED_ORIGINS")
 
@@ -284,8 +284,9 @@ ACCOUNT_AUTHENTICATION_METHOD = "email"
 ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_USERNAME_REQUIRED = True
 ACCOUNT_EMAIL_VERIFICATION = "mandatory"
-ACCOUNT_LOGIN_ATTEMPTS_LIMIT = 5  # Brute-force protection
-ACCOUNT_LOGIN_ATTEMPTS_TIMEOUT = 300  # 5 min lockout after limit hit
+ACCOUNT_RATE_LIMITS = {
+    "login_failed": "5/300s",
+}
 ACCOUNT_ADAPTER = "apps.authentication.adapters.GoogleAccountAdapter"
 SOCIALACCOUNT_AUTO_SIGNUP = True
 SOCIALACCOUNT_EMAIL_VERIFICATION = "none"  # Google already verified the email
