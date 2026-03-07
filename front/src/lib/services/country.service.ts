@@ -1,4 +1,4 @@
-import { apiGet, PaginatedResponse } from '../api';
+import { apiGet } from '../api';
 
 /**
  * Country data structure from backend API
@@ -17,8 +17,7 @@ export interface Country {
  */
 export async function getCountries(): Promise<Country[]> {
   try {
-    const response = await apiGet<PaginatedResponse<Country>>('/countries/');
-    return response.results;
+    return await apiGet<Country[]>('/countries/');
   } catch (error) {
     console.error('Failed to fetch countries:', error);
     throw error;

@@ -95,9 +95,11 @@ class CountryListAPIView(ListAPIView):
     queryset = Country.objects.all()
     serializer_class = CountrySerializer
     permission_classes = [IsAuthenticated]
+    pagination_class = None
 
 
 class FlowListAPIView(ListAPIView):
     queryset = Flow.objects.all()
     serializer_class = FlowSerializer
     permission_classes = [IsAuthenticated]
+    pagination_class = None
