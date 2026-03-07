@@ -5,7 +5,7 @@
  */
 
 // Main component
-export { default as Search } from '@/src/components/Search';
+export { default as Search } from '@/src/components/search/Search';
 
 // Sub-components
 export { SearchModeToggle } from './SearchModeToggle';

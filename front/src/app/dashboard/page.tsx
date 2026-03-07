@@ -4,7 +4,7 @@
  */
 
 import Header from '@/src/components/Header';
-import Search from '@/src/components/Search';
+import Search from '@/src/components/search/Search';
 import TradeDashboard from '@/src/components/trade-data/TradeDashboard';
 import { AuthGuard } from '@/src/components/auth/AuthGuard';
 

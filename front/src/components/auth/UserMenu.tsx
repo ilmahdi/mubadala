@@ -73,7 +73,7 @@ export function UserMenu() {
 
       {open && (
         <div
-          className="absolute right-0 z-(--z-index-dropdown) mt-2 w-52 rounded-md border border-gray-200 bg-white shadow-md"
+          className="absolute right-0 z-(--z-index-dropdown) mt-2 w-fit min-w-52 rounded-md border border-gray-200 bg-white shadow-md"
           role="menu"
         >
           {/* User info */}
