@@ -9,11 +9,28 @@ from rest_framework.exceptions import ValidationError
 from rest_framework.generics import ListAPIView
 
 from .models import Country, Flow, TradeFact
-from .serializers import CountrySerializer, FlowSerializer, TradeFactSerializer
+from .serializers import (
+    CountrySerializer,
+    FlowSerializer,
+    TradeFactSerializer,
+    TradeListRequestSerializer,
+)
 from .pagination import TradePagination
 from .filter_utils import build_filter_q
+from .consts import FIELD_MAPPING
 
 logger = logging.getLogger(__name__)
+
+
+def _build_ordering(sort_list: list) -> list[str]:
+    """Convert validated sort directives to Django ORM ordering strings."""
+    ordering = []
+    for item in sort_list:
+        orm_field = FIELD_MAPPING.get(item["id"])
+        if not orm_field:
+            continue
+        ordering.append(f"-{orm_field}" if item.get("desc") else orm_field)
+    return ordering
 
 
 class TradeListView(APIView):
@@ -22,25 +39,14 @@ class TradeListView(APIView):
     permission_classes = [IsAuthenticated]
     pagination_class = TradePagination
 
-    # Map frontend field names to Django model fields
-    ORDERING_FIELD_MAP = {
-        "hs_product_code": "hs_product__hs_product_code",
-        "country_code": "country__country_code",
-        "continent": "country__continent",
-        "flow_code": "flow__flow_code",
-        "value_dhs": "value_dhs",
-        "weight_kg": "weight_kg",
-        "trade_date": "trade_date",
-        "date": "trade_date",
-    }
-
     def post(self, request):
-        try:
-            filters_list = request.data.get("filters", [])
-            join_operator = request.data.get("joinOperator", "and")
-            sort_list = request.data.get("sort", [])
-        except Exception:
-            raise ValidationError("Invalid request body format")
+        req_serializer = TradeListRequestSerializer(data=request.data)
+        req_serializer.is_valid(raise_exception=True)
+        params = req_serializer.validated_data
+
+        filters_list = params["filters"]
+        join_operator = params["joinOperator"]
+        sort_list = params["sort"]
 
         queryset = TradeFact.objects.select_related(
             "hs_product",
@@ -58,11 +64,12 @@ class TradeListView(APIView):
                 queryset = queryset.filter(filter_q)
 
         # Apply ordering
-        ordering = self.build_ordering(sort_list)
-        if ordering:
-            queryset = queryset.order_by(*ordering)
-        else:
-            queryset = queryset.order_by("-trade_date", "id")
+        ordering = _build_ordering(sort_list)
+        queryset = (
+            queryset.order_by(*ordering)
+            if ordering
+            else queryset.order_by("-trade_date", "id")
+        )
 
         # Paginate
         paginator = self.pagination_class()
@@ -70,25 +77,6 @@ class TradeListView(APIView):
 
         serializer = TradeFactSerializer(page, many=True)
         return paginator.get_paginated_response(serializer.data)
-
-    def build_ordering(self, sort_list):
-        """Convert frontend sort format to Django ORM ordering."""
-        ordering = []
-
-        for sort_item in sort_list:
-            field_id = sort_item.get("id")
-            desc = sort_item.get("desc", False)
-
-            model_field = self.ORDERING_FIELD_MAP.get(field_id)
-            if not model_field:
-                continue
-
-            if desc:
-                model_field = f"-{model_field}"
-
-            ordering.append(model_field)
-
-        return ordering
 
 
 class CountryListAPIView(ListAPIView):
