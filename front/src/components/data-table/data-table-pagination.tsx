@@ -23,7 +23,7 @@ interface DataTablePaginationProps<TData> {
   pageSizeOptions?: number[];
 }
 
-const LIMIT_OFSET_PAGINATION = 5000;
+const MAX_BACKEND_OFFSET = 10_000;
 
 export function DataTablePagination<TData>({
   table,
@@ -37,6 +37,7 @@ export function DataTablePagination<TData>({
     return arr.some((condition) => condition);
   };
   const { pageIndex, pageSize } = table.getState().pagination;
+  const maxPageCount = Math.floor(MAX_BACKEND_OFFSET / pageSize);
 
   const startRow = totalCount === 0 ? 0 : pageIndex * pageSize + 1;
   const endRow = Math.min((pageIndex + 1) * pageSize, totalCount);
@@ -104,12 +105,12 @@ export function DataTablePagination<TData>({
             }}
             disabled={isDisabled([
               !table.getCanNextPage(),
-              pageCount > LIMIT_OFSET_PAGINATION,
+              pageCount > maxPageCount,
             ])}
             aria-label="Last page"
             title={
-              pageCount > LIMIT_OFSET_PAGINATION
-                ? 'Page count exceeds 5000, use filters to reduce results'
+              pageCount > maxPageCount
+                ? `Results exceed the limit of ${MAX_BACKEND_OFFSET.toLocaleString()} items, use filters to narrow down your search`
                 : undefined
             }
           >

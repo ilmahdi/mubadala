@@ -12,7 +12,7 @@ from .models import (
     Flow,
 )
 
-MAX_TRADE_STATS_OFFSET = 50_000
+MAX_TRADE_STATS_OFFSET = 10_000
 
 ORDERING_FIELDS = [
     "hs_product_code",

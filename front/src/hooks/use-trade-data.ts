@@ -21,6 +21,7 @@ const DEFAULT_PAGE = 1;
 const DEFAULT_PER_PAGE = 10;
 const DEFAULT_JOIN_OPERATOR = 'and';
 const INVALID_PAGE_ERROR = 'invalid page';
+const OFFSET_EXCEEDED_ERROR = 'exceeds the limit';
 const GENERIC_ERROR_MESSAGE = 'Failed to load trade data';
 
 interface UseTradeDataReturn {
@@ -203,7 +204,11 @@ export function useTradeData(): UseTradeDataReturn {
 
       const errorMessage = err instanceof Error ? err.message : '';
 
-      if (errorMessage.toLowerCase().includes(INVALID_PAGE_ERROR)) {
+      const isPageError =
+        errorMessage.toLowerCase().includes(INVALID_PAGE_ERROR) ||
+        errorMessage.toLowerCase().includes(OFFSET_EXCEEDED_ERROR);
+
+      if (isPageError) {
         if (page !== DEFAULT_PAGE) {
           lastFetchedQueryRef.current = '';
           void setPage(DEFAULT_PAGE);
