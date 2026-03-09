@@ -244,7 +244,7 @@ export const filterStyles = {
  */
 export const searchStyles = {
   container:
-    'flex items-center flex-wrap rounded-md border border-gray-200 bg-white px-2 py-1 transition-colors focus-within:border-gray-200 focus-within:ring-2 focus-within:ring-gray-100',
+    'flex items-center flex-wrap border-b border-gray-200 bg-white py-1 px-2 transition-colors focus-within:bg-gray-50  focus-within:rounded-xl',
   input: 'flex-1 bg-transparent text-sm outline-none placeholder:text-gray-400',
   icon: 'text-gray-400 h-4 w-4',
 } as const;
