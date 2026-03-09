@@ -1,5 +1,5 @@
 """
-Field configuration for the trade filter system.
+Trade app constants: field mappings, operator sets, etc.
 
 """
 
@@ -12,10 +12,21 @@ from .models import (
     Flow,
 )
 
+MAX_TRADE_STATS_OFFSET = 50_000
+
+ORDERING_FIELDS = [
+    "hs_product_code",
+    "country_code",
+    "continent",
+    "flow_code",
+    "value_dhs",
+    "weight_kg",
+    "trade_date",
+    "date",
+]
 
 NUMERIC_VARIANTS = {"number", "range"}
 DATE_VARIANTS = {"date", "dateRange"}
-
 ARRAY_OPERATORS = {"inArray", "notInArray"}
 NEGATED_OPERATORS = {"ne", "notILike", "notInArray", "isNotEmpty"}
 
@@ -36,7 +47,6 @@ TRUE_STRINGS = {"true", "1", "yes"}
 
 # ---------------------------------------------------------------------------
 # Maps frontend field names to TradeFact ORM relationships.
-# Used for ORDER BY and for the fallback filter path.
 # ---------------------------------------------------------------------------
 FIELD_MAPPING = {
     "hs_product_code": "hs_product__hs_product_code",
@@ -59,10 +69,12 @@ FIELD_MAPPING = {
     "flow_code": "flow__flow_code",
     "flow_label": "flow__flow_label",
     "date": "trade_date",
+    "trade_date": "trade_date",
     "weight_kg": "weight_kg",
     "value_dhs": "value_dhs",
     "supplementary_unit": "supplementary_unit",
 }
+
 
 # ---------------------------------------------------------------------------
 # Dimension fields that must be filtered via a subquery on the dimension table

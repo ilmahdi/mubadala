@@ -18,7 +18,7 @@ from decimal import Decimal, InvalidOperation
 from datetime import datetime, date, timezone
 import logging
 
-from .field_config import (
+from .consts import (
     FIELD_MAPPING,
     FOREIGN_KEY_SUBQUERY_MAP,
     LOOKUPS,
