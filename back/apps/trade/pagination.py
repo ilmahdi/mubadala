@@ -1,68 +1,119 @@
 import hashlib
 from django.core.paginator import Paginator
+from django.db import connection
 from django.utils import timezone
 from rest_framework.pagination import PageNumberPagination
-
 from .models import QueryCountCache
+from django.db import transaction
 
 
 class CachedCountPaginator(Paginator):
 
     CACHE_TTL_SECONDS = 3600 * 24 * 30 * 4
+    COUNT_TIMEOUT_MS = 700
+    SAMPLE_PCT = 2.0
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self._cached_count = None
 
-    def _get_query_hash(self, queryset):
-        sql = str(queryset.order_by().query)
-        return hashlib.sha256(sql.encode()).hexdigest()
+    def _get_query_hash(self, queryset) -> str:
+        sql, params = queryset.order_by().values("id").query.sql_with_params()
+        return hashlib.sha256((sql + str(params)).encode()).hexdigest()
 
-    def _get_cached_count(self, query_hash):
+    def _get_cached_count(self, query_hash: str) -> int | None:
+        entry = QueryCountCache.objects.filter(query_hash=query_hash).first()
+        if entry is None:
+            return None
+
+        age = (timezone.now() - entry.created_at).total_seconds()
+        if age < self.CACHE_TTL_SECONDS:
+            return entry.count
+
+        return None
+
+    def _store_cached_count(self, query_hash: str, count: int) -> None:
+        QueryCountCache.objects.bulk_create(
+            [QueryCountCache(query_hash=query_hash, count=count)],
+            update_conflicts=True,
+            unique_fields=["query_hash"],
+            update_fields=["count"],
+        )
+
+    def _get_exact_count_with_timeout(self, queryset) -> int | None:
         try:
-            entry = QueryCountCache.objects.get(query_hash=query_hash)
+            with transaction.atomic():
+                with connection.cursor() as cursor:
+                    cursor.execute(
+                        "SET LOCAL statement_timeout = %s", [self.COUNT_TIMEOUT_MS]
+                    )
+                return queryset.order_by().count()
 
-            age = (timezone.now() - entry.created_at).total_seconds()
-            if age < self.CACHE_TTL_SECONDS:
-                return entry.count
+        except Exception:
+            return None
 
-            # expired → delete
-            entry.delete()
+    def _get_approximate_count(self, queryset) -> int | None:
 
-        except QueryCountCache.DoesNotExist:
+        inner_sql, params = queryset.order_by().values("id").query.sql_with_params()
+        table_name = queryset.model._meta.db_table
+
+        from_token = f'FROM "{table_name}"'
+
+        sampled_sql = inner_sql.replace(
+            from_token,
+            f"{from_token} TABLESAMPLE SYSTEM({self.SAMPLE_PCT})",
+            1,
+        )
+
+        try:
+            with connection.cursor() as cursor:
+
+                cursor.execute(
+                    f"SELECT COUNT(*) FROM ({sampled_sql}) _tablesample_estimate",
+                    params,
+                )
+
+                row = cursor.fetchone()
+
+                if row and row[0] is not None:
+                    return int(row[0] / (self.SAMPLE_PCT / 100))
+
+        except Exception:
             pass
 
         return None
 
-    def _store_cached_count(self, query_hash, count):
-        QueryCountCache.objects.update_or_create(
-            query_hash=query_hash,
-            defaults={
-                "count": count,
-                "created_at": timezone.now(),
-            },
-        )
-
     @property
-    def count(self):
+    def count(self) -> int:
         if self._cached_count is not None:
             return self._cached_count
 
         queryset = self.object_list
         query_hash = self._get_query_hash(queryset)
 
-        # Try DB cache first
+        # Tier 1: cached
         cached = self._get_cached_count(query_hash)
         if cached is not None:
             self._cached_count = cached
             return cached
 
-        # Run expensive COUNT(*)
+        # Tier 2: exact with timeout
+        exact = self._get_exact_count_with_timeout(queryset)
+        if exact is not None:
+            self._store_cached_count(query_hash, exact)
+            self._cached_count = exact
+            return exact
+
+        # Tier 3: approximate fallback
+        approx = self._get_approximate_count(queryset)
+        if approx is not None:
+            self._cached_count = approx
+            self._store_cached_count(query_hash, approx)
+            return approx
+
+        # Tier 4: final fallback
         exact = super().count
-
-        # Store result
         self._store_cached_count(query_hash, exact)
-
         self._cached_count = exact
         return exact
 
