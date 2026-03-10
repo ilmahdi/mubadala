@@ -250,7 +250,7 @@ class ProcessedFile(models.Model):
 
 
 class QueryCountCache(models.Model):
-    query_hash = models.CharField(max_length=64, unique=True)
+    query_hash = models.CharField(max_length=64, unique=True, db_index=True)
     count = models.BigIntegerField()
     created_at = models.DateTimeField(auto_now_add=True)
 

@@ -1,15 +1,17 @@
+import time
 import hashlib
 from django.core.paginator import Paginator
 from django.db import connection
 from django.utils import timezone
 from rest_framework.pagination import PageNumberPagination
-from .models import QueryCountCache
 from django.db import transaction
+from .models import QueryCountCache
 
 
 class CachedCountPaginator(Paginator):
 
     CACHE_TTL_SECONDS = 3600 * 24 * 30 * 4
+    CACHE_MIN_QUERY_SECONDS = 0.2
     COUNT_TIMEOUT_MS = 700
     SAMPLE_PCT = 2.0
 
@@ -40,17 +42,20 @@ class CachedCountPaginator(Paginator):
             update_fields=["count"],
         )
 
-    def _get_exact_count_with_timeout(self, queryset) -> int | None:
+    def _get_exact_count_with_timeout(self, queryset) -> tuple[int, float] | None:
         try:
             with transaction.atomic():
+                start = time.monotonic()
                 with connection.cursor() as cursor:
                     cursor.execute(
                         "SET LOCAL statement_timeout = %s", [self.COUNT_TIMEOUT_MS]
                     )
-                return queryset.order_by().count()
+                result = queryset.order_by().count()
+                elapsed = time.monotonic() - start
+                return result, elapsed
 
         except Exception:
-            return None
+            return None, 0.0
 
     def _get_approximate_count(self, queryset) -> int | None:
 
@@ -98,9 +103,10 @@ class CachedCountPaginator(Paginator):
             return cached
 
         # Tier 2: exact with timeout
-        exact = self._get_exact_count_with_timeout(queryset)
+        exact, elapsed = self._get_exact_count_with_timeout(queryset)
         if exact is not None:
-            self._store_cached_count(query_hash, exact)
+            if elapsed > self.CACHE_MIN_QUERY_SECONDS:
+                self._store_cached_count(query_hash, exact)
             self._cached_count = exact
             return exact
 
