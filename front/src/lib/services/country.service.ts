@@ -8,6 +8,9 @@ export interface Country {
   country_code: string;
 }
 
+/** Module-level cache — populated on the first successful fetch. */
+let _cache: Promise<Country[]> | null = null;
+
 /**
  * Fetch all countries from the backend
  * Returns array of countries with name and ISO code
@@ -16,12 +19,14 @@ export interface Country {
  * @throws Error if API request fails
  */
 export async function getCountries(): Promise<Country[]> {
-  try {
-    return await apiGet<Country[]>('/countries/');
-  } catch (error) {
-    console.error('Failed to fetch countries:', error);
-    throw error;
+  if (!_cache) {
+    _cache = apiGet<Country[]>('/countries/').catch((error) => {
+      _cache = null;
+      console.error('Failed to fetch countries:', error);
+      throw error;
+    });
   }
+  return _cache;
 }
 
 /**

@@ -8,6 +8,9 @@ export interface Flow {
   flow_code: string;
 }
 
+/** Module-level cache — populated on the first successful fetch. */
+let _cache: Promise<Flow[]> | null = null;
+
 /**
  * Fetch all flows from the backend
  * Returns array of flows with label and code
@@ -16,12 +19,14 @@ export interface Flow {
  * @throws Error if API request fails
  */
 export async function getFlows(): Promise<Flow[]> {
-  try {
-    return await apiGet<Flow[]>('/flows/');
-  } catch (error) {
-    console.error('Failed to fetch flows:', error);
-    throw error;
+  if (!_cache) {
+    _cache = apiGet<Flow[]>('/flows/').catch((error) => {
+      _cache = null;
+      console.error('Failed to fetch flows:', error);
+      throw error;
+    });
   }
+  return _cache;
 }
 
 /**
