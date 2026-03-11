@@ -237,7 +237,9 @@ REST_FRAMEWORK = {
     ],
     "DEFAULT_THROTTLE_RATES": {
         "anon": "30/minute",
-        "user": "200/minute",
+        "user": "300/minute",
+        "trade_burst": env("THROTTLE_TRADE_BURST", "60/minute"),
+        "trade_sustained": env("THROTTLE_TRADE_SUSTAINED", "500/hour"),
     },
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
     "PAGE_SIZE": 50,
@@ -307,24 +309,26 @@ SOCIALACCOUNT_PROVIDERS = {
 # ---------------------------------------------------------------------------
 # Caching
 # ---------------------------------------------------------------------------
-# _REDIS_URL = env("REDIS_URL")
+_REDIS_URL = env("REDIS_URL")
 
-# if _REDIS_URL:
-#     CACHES = {
-#         "default": {
-#             "BACKEND": "django.core.cache.backends.redis.RedisCache",
-#             "LOCATION": _REDIS_URL,
-#             "OPTIONS": {"CLIENT_CLASS": "django_redis.client.DefaultClient"},
-#             "KEY_PREFIX": "mubadala",
-#         }
-#     }
-# else:
-#     # Local memory cache — fine for single-process, not shared across workers
-#     CACHES = {
-#         "default": {
-#             "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
-#         }
-#     }
+if _REDIS_URL:
+    CACHES = {
+        "default": {
+            "BACKEND": "django.core.cache.backends.redis.RedisCache",
+            "LOCATION": _REDIS_URL,
+            "OPTIONS": {"CLIENT_CLASS": "django_redis.client.DefaultClient"},
+            "KEY_PREFIX": "mubadala",
+        }
+    }
+else:
+    # DatabaseCache — persisted in PostgreSQL, shared across all workers.
+    CACHES = {
+        "default": {
+            "BACKEND": "django.core.cache.backends.db.DatabaseCache",
+            "LOCATION": "django_cache",  # table name (created by createcachetable)
+            "KEY_PREFIX": "mubadala",
+        }
+    }
 
 
 # ---------------------------------------------------------------------------
