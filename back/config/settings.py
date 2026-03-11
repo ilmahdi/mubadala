@@ -223,7 +223,7 @@ REST_FRAMEWORK = {
     ],
     "DEFAULT_AUTHENTICATION_CLASSES": [
         # Primary: reads Authorization: Bearer <token> header sent by NextAuth
-        "rest_framework_simplejwt.authentication.JWTAuthentication",
+        "apps.authentication.auth_backends.CachedJWTAuthentication",
         # Secondary: only used by Django admin (session-based)
         "rest_framework.authentication.SessionAuthentication",
     ],
@@ -239,7 +239,6 @@ REST_FRAMEWORK = {
         "anon": "30/minute",
         "user": "300/minute",
         "trade_burst": env("THROTTLE_TRADE_BURST", "60/minute"),
-        "trade_sustained": env("THROTTLE_TRADE_SUSTAINED", "500/hour"),
     },
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
     "PAGE_SIZE": 50,
@@ -316,7 +315,6 @@ if _REDIS_URL:
         "default": {
             "BACKEND": "django.core.cache.backends.redis.RedisCache",
             "LOCATION": _REDIS_URL,
-            "OPTIONS": {"CLIENT_CLASS": "django_redis.client.DefaultClient"},
             "KEY_PREFIX": "mubadala",
         }
     }

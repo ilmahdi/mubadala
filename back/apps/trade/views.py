@@ -18,7 +18,7 @@ from .serializers import (
 from .pagination import TradePagination
 from .filter_utils import build_filter_q
 from .consts import FIELD_MAPPING
-from .throttles import TradeBurstThrottle, TradeSustainedThrottle
+from .throttles import TradeBurstThrottle
 
 logger = logging.getLogger(__name__)
 
@@ -39,7 +39,7 @@ class TradeListView(APIView):
 
     permission_classes = [IsAuthenticated]
     pagination_class = TradePagination
-    throttle_classes = [TradeBurstThrottle, TradeSustainedThrottle]
+    throttle_classes = [TradeBurstThrottle]
 
     def post(self, request):
         req_serializer = TradeListRequestSerializer(data=request.data)
