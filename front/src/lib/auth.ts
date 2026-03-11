@@ -20,9 +20,11 @@ import Google from 'next-auth/providers/google';
 import type { NextAuthConfig } from 'next-auth';
 
 // Backend JWT access tokens expire after 1 hour (3600 s).
-// We refresh proactively 60 seconds before expiry.
+// We refresh proactively well before expiry. The buffer must be larger than
+// the client-side refetchInterval (5 min = 300 s) so that at least one
+// polling cycle is guaranteed to fall inside the refresh window.
 const DJANGO_ACCESS_TOKEN_EXPIRY_SECONDS = 3600;
-const REFRESH_BUFFER_SECONDS = 60;
+const REFRESH_BUFFER_SECONDS = 6 * 60; // 6 minutes
 
 /**
  * Exchange a Backend refresh token for a new access token.
@@ -130,22 +132,31 @@ export const authConfig: NextAuthConfig = {
       // ── Proactive token refresh ───────────────────────────────────────────
       const expiresAt = token.backendAccessTokenExpires as number | undefined;
       const refreshToken = token.backendRefreshToken as string | undefined;
+      const nowSeconds = Math.floor(Date.now() / 1000);
 
       if (
         expiresAt &&
         refreshToken &&
-        Math.floor(Date.now() / 1000) > expiresAt - REFRESH_BUFFER_SECONDS
+        nowSeconds > expiresAt - REFRESH_BUFFER_SECONDS
       ) {
+        const isActuallyExpired = nowSeconds >= expiresAt;
         const refreshed = await refreshBackendAccessToken(refreshToken);
+
         if (refreshed) {
           token.backendAccessToken = refreshed.access;
           token.backendRefreshToken = refreshed.refresh;
           token.backendAccessTokenExpires =
-            Math.floor(Date.now() / 1000) + DJANGO_ACCESS_TOKEN_EXPIRY_SECONDS;
+            nowSeconds + DJANGO_ACCESS_TOKEN_EXPIRY_SECONDS;
           delete token.error;
-        } else {
-          // Refresh failed — force re-login on next request
+        } else if (isActuallyExpired) {
+          // Token has genuinely expired and the refresh failed — force re-login.
           token.error = 'RefreshTokenError';
+        } else {
+          // Proactive refresh failed but the token is still valid.
+          // Log and skip: the next jwt callback invocation will try again.
+          console.warn(
+            '[auth] Proactive token refresh failed; access token still valid, will retry.',
+          );
         }
       }
 
