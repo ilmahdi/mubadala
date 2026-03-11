@@ -594,6 +594,23 @@ function FilterInputRender<TData>({
   const [isLoadingOptions, setIsLoadingOptions] = React.useState(false);
   const [optionsError, setOptionsError] = React.useState<string | null>(null);
 
+  // Local buffer for multiSelect values.
+  const [localMultiValues, setLocalMultiValues] = React.useState<string[]>(
+    () =>
+      filter.variant === 'multiSelect' && Array.isArray(filter.value)
+        ? filter.value.map(String)
+        : [],
+  );
+
+  // Sync the local buffer whenever the committed filter value changes
+  React.useEffect(() => {
+    if (filter.variant === 'multiSelect') {
+      setLocalMultiValues(
+        Array.isArray(filter.value) ? filter.value.map(String) : [],
+      );
+    }
+  }, [filter.value, filter.variant]);
+
   React.useEffect(() => {
     // Only fetch if variant is select/multiSelect
     if (filter.variant === 'select' || filter.variant === 'multiSelect') {
@@ -717,22 +734,50 @@ function FilterInputRender<TData>({
 
       const multiple = filter.variant === 'multiSelect';
       const selectedValues = multiple
-        ? Array.isArray(filter.value)
-          ? filter.value.map(String)
-          : []
+        ? localMultiValues
         : typeof filter.value === 'string'
           ? filter.value
           : undefined;
 
+      // Reset the local buffer to the last committed value
+      const handleOpenChange = (open: boolean) => {
+        if (!open && multiple) {
+          setLocalMultiValues(
+            Array.isArray(filter.value) ? filter.value.map(String) : [],
+          );
+        }
+        setShowValueSelector(open);
+      };
+
+      // Commit the local buffer to the filter and close the popover.
+      const handleApply = () => {
+        onFilterUpdate(filter.filterId, { value: localMultiValues });
+        setShowValueSelector(false);
+      };
+
+      const handleClear = () => setLocalMultiValues([]);
+
+      // Detect pending (uncommitted) changes to show a visual hint.
+      const committedValues = Array.isArray(filter.value)
+        ? filter.value.map(String)
+        : [];
+      const hasPendingChanges =
+        multiple &&
+        showValueSelector &&
+        (localMultiValues.length !== committedValues.length ||
+          localMultiValues.some((v) => !committedValues.includes(v)));
+
       return (
         <Faceted
           open={showValueSelector}
-          onOpenChange={setShowValueSelector}
+          onOpenChange={multiple ? handleOpenChange : setShowValueSelector}
           value={selectedValues}
           onValueChange={(value) => {
-            onFilterUpdate(filter.filterId, {
-              value,
-            });
+            if (multiple) {
+              setLocalMultiValues(Array.isArray(value) ? value : []);
+            } else {
+              onFilterUpdate(filter.filterId, { value });
+            }
           }}
           multiple={multiple}
         >
@@ -787,6 +832,34 @@ function FilterInputRender<TData>({
                 </>
               )}
             </FacetedList>
+            {multiple && (
+              <div className="flex items-center justify-between border-t border-gray-100 px-2 py-2">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-7 rounded px-2 text-xs text-gray-500 hover:text-gray-700"
+                  onClick={handleClear}
+                  disabled={localMultiValues.length === 0}
+                >
+                  Clear
+                </Button>
+                <Button
+                  size="sm"
+                  className={cn(
+                    'h-7 gap-1 rounded px-3 text-xs',
+                    hasPendingChanges,
+                  )}
+                  onClick={handleApply}
+                >
+                  Apply
+                  {hasPendingChanges && (
+                    <span className="text-[10px]">
+                      ({localMultiValues.length})
+                    </span>
+                  )}
+                </Button>
+              </div>
+            )}
           </FacetedContent>
         </Faceted>
       );
