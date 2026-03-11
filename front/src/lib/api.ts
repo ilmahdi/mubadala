@@ -112,9 +112,10 @@ export async function apiGet<T>(endpoint: string): Promise<T> {
 export async function apiPost<T, D = unknown>(
   endpoint: string,
   data: D,
+  signal?: AbortSignal,
 ): Promise<T> {
   const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-    ...getFetchOptions(),
+    ...getFetchOptions({ signal }),
     method: 'POST',
     body: JSON.stringify(data),
   });

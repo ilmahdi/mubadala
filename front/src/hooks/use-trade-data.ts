@@ -181,7 +181,7 @@ export function useTradeData(): UseTradeDataReturn {
 
       const response: PaginatedResponse<TradeRow> = await getTrades(
         queryParams,
-        // abortControllerRef.current.signal,
+        abortControllerRef.current.signal,
       );
 
       if (!abortControllerRef.current.signal.aborted) {

@@ -43,8 +43,9 @@ function buildQueryString(params: TradeQueryParams): string {
 
 export async function getTrades(
   data?: TradeQueryParams,
+  signal?: AbortSignal,
 ): Promise<PaginatedResponse<TradeRow>> {
-  return apiPost<PaginatedResponse<TradeRow>>('/trades/', data);
+  return apiPost<PaginatedResponse<TradeRow>>('/trades/', data, signal);
 }
 
 export async function getTrade(id: number): Promise<TradeRow> {
