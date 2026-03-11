@@ -28,7 +28,7 @@ interface AuthProviderProps {
 
 export function AuthProvider({ children }: AuthProviderProps) {
   return (
-    <SessionProvider refetchOnWindowFocus refetchInterval={5 * 60}>
+    <SessionProvider refetchOnWindowFocus={false} refetchInterval={5 * 60}>
       <TokenSyncer />
       {children}
     </SessionProvider>

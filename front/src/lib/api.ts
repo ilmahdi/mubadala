@@ -61,7 +61,9 @@ function getFetchOptions(options: RequestInit = {}): RequestInit {
 
 async function handleApiError(response: Response): Promise<never> {
   if (response.status === 401) {
-    signOut({ callbackUrl: '/auth/signin' });
+    if (typeof navigator === 'undefined' || navigator.onLine) {
+      signOut({ callbackUrl: '/auth/signin' });
+    }
   }
 
   let errorMessage = `API request failed: ${response.status} ${response.statusText}`;
