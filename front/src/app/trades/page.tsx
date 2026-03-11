@@ -1,6 +1,6 @@
 /**
- * Dashboard Page
- * Main application dashboard with trade data and analytics
+ * Trades Page
+ * Main application page for viewing trade data and analytics
  */
 
 import Header from '@/src/components/Header';
@@ -8,7 +8,7 @@ import Search from '@/src/components/search/Search';
 import TradeDashboard from '@/src/components/trade-data/TradeDashboard';
 import { AuthGuard } from '@/src/components/auth/AuthGuard';
 
-export default function DashboardPage() {
+export default function TradesPage() {
   return (
     <AuthGuard>
       <div className="flex h-fit flex-col">

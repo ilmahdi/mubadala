@@ -40,7 +40,7 @@ export function UserMenu() {
   }
 
   if (!isAuthenticated || !user) {
-    return <SignInButton callbackUrl="/dashboard" />;
+    return <SignInButton callbackUrl="/trades" />;
   }
 
   // Derive initials from name or email

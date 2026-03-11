@@ -53,7 +53,7 @@ export function LandingHeader() {
           {/* CTA */}
           <div className="flex items-center gap-4">
             <Link
-              href="/dashboard"
+              href="/trades"
               className="border-brand text-brand hover:bg-brand focus:ring-brand/40 rounded-lg border-[1.5px] px-4 py-1.5 text-sm font-medium transition-all hover:text-white hover:shadow-md focus:ring-2 focus:outline-none"
             >
               Get Access

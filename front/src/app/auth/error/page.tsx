@@ -94,7 +94,7 @@ function AuthErrorContent() {
 
           <div className={`${separatorStyles.horizontal} mb-6`} />
 
-          <SignInButton className="w-full" callbackUrl="/dashboard" />
+          <SignInButton className="w-full" callbackUrl="/trades" />
 
           <div className="mt-4 text-center">
             <Link

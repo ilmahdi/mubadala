@@ -51,7 +51,7 @@ export default function SignInPage() {
 
           <div className={`${separatorStyles.horizontal} mb-6`} />
 
-          <SignInButton className="w-full" callbackUrl="/dashboard" />
+          <SignInButton className="w-full" callbackUrl="/trades" />
 
           <div className="mt-5 flex items-center justify-center gap-4 text-xs text-gray-400">
             <span className="flex items-center gap-1.5">

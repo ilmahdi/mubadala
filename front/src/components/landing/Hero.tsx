@@ -75,7 +75,7 @@ export function Hero() {
           transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1], delay: 0.2 }}
         >
           <Link
-            href="/dashboard"
+            href="/trades"
             className="bg-brand hover:bg-brand-dark flex h-14 transform items-center justify-center gap-2 rounded-lg px-10 text-base font-semibold text-white transition-all hover:-translate-y-0.5"
           >
             <span>Get Access</span>

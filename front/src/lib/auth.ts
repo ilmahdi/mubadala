@@ -193,16 +193,16 @@ export const authConfig: NextAuthConfig = {
      * Middleware-level authorization check.
      *
      * Rules:
-     *  - Authenticated + /dashboard  → allow
-     *  - Authenticated + / or /auth  → redirect to /dashboard
-     *  - Unauthenticated + /dashboard → redirect to /auth/signin
+     *  - Authenticated + /trades  → allow
+     *  - Authenticated + / or /auth  → redirect to /trades
+     *  - Unauthenticated + /trades → redirect to /auth/signin
      *  - RefreshTokenError            → redirect to /auth/signin
      *  - Everything else              → allow
      */
     authorized({ auth: session, request }) {
       const { pathname } = request.nextUrl;
       const isAuthenticated = !!session?.user;
-      const isProtected = pathname.startsWith('/dashboard');
+      const isProtected = pathname.startsWith('/trades');
       const isAuthRoute = pathname.startsWith('/auth');
       const isLanding = pathname === '/';
 
@@ -215,7 +215,7 @@ export const authConfig: NextAuthConfig = {
 
       // Redirect authenticated users away from landing page & auth routes
       if (isAuthenticated && (isLanding || isAuthRoute)) {
-        return Response.redirect(new URL('/dashboard', request.nextUrl.origin));
+        return Response.redirect(new URL('/trades', request.nextUrl.origin));
       }
 
       // Redirect unauthenticated users away from protected routes
