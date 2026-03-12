@@ -12,6 +12,7 @@ class CachedCountPaginator(Paginator):
 
     CACHE_TTL_SECONDS = 3600 * 24 * 30 * 4
     CACHE_MIN_QUERY_SECONDS = 0.2
+    APPROXIMATE_THRESHOLD = 50_000
     COUNT_TIMEOUT_MS = 700
     SAMPLE_PCT = 2.0
 
@@ -127,7 +128,7 @@ class CachedCountPaginator(Paginator):
 
         # Tier 3: approximate fallback
         approx = self._get_approximate_count(queryset)
-        if approx is not None:
+        if approx is not None and approx > self.APPROXIMATE_THRESHOLD:
             self._count_tier = QueryCountCache.Tier.APPROXIMATE
             self._cached_count = approx
             self._store_cached_count(
