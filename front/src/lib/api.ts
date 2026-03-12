@@ -7,6 +7,7 @@ export interface PaginatedResponse<T> {
   next: string | null;
   previous: string | null;
   results: T[];
+  count_method?: 'exact' | 'approximate' | 'fallback';
 }
 
 export interface ApiError {

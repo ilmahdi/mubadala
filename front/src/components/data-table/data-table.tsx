@@ -16,6 +16,7 @@ import { tableStyles } from '@/src/config/component-styles';
 interface DataTableProps<TData> extends React.ComponentProps<'div'> {
   table: TanstackTable<TData>;
   totalCount: number;
+  countMethod?: 'exact' | 'approximate' | 'fallback';
   actionBar?: React.ReactNode;
   expandedRowId?: string | null;
   onToggleRow?: (id: string | null) => void;
@@ -25,6 +26,7 @@ interface DataTableProps<TData> extends React.ComponentProps<'div'> {
 export function DataTable<TData extends { id: string }>({
   table,
   totalCount,
+  countMethod = 'exact',
   actionBar,
   expandedRowId = null,
   onToggleRow,
@@ -98,6 +100,7 @@ export function DataTable<TData extends { id: string }>({
         <DataTablePagination
           table={table}
           totalCount={totalCount}
+          countMethod={countMethod}
           onToggle={onToggleRow ?? (() => {})}
           loading={loading}
         />

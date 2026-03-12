@@ -25,6 +25,7 @@ type DataTableProps = {
   columns: ColumnDef<TradeRow, unknown>[];
   data: TradeRow[];
   totalCount: number;
+  countMethod?: 'exact' | 'approximate' | 'fallback';
   loading?: boolean;
 };
 
@@ -32,6 +33,7 @@ export function ManagedDataTable({
   columns,
   data,
   totalCount,
+  countMethod = 'exact',
   loading = false,
 }: DataTableProps) {
   const [expandedRowId, setExpandedRowId] = useState<string | null>(null);
@@ -77,6 +79,7 @@ export function ManagedDataTable({
     <DataTable
       table={table}
       totalCount={totalCount}
+      countMethod={countMethod}
       expandedRowId={expandedRowId}
       onToggleRow={(id) =>
         setExpandedRowId((prev) => (prev === id ? null : id))

@@ -29,6 +29,7 @@ interface UseTradeDataReturn {
   loading: boolean;
   error: string | null;
   totalCount: number;
+  countMethod: 'exact' | 'approximate' | 'fallback';
   nextPage: string | null;
   previousPage: string | null;
   /** Refresh/refetch the data */
@@ -71,6 +72,9 @@ export function useTradeData(): UseTradeDataReturn {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [totalCount, setTotalCount] = useState(0);
+  const [countMethod, setCountMethod] = useState<
+    'exact' | 'approximate' | 'fallback'
+  >('exact');
   const [nextPage, setNextPage] = useState<string | null>(null);
   const [previousPage, setPreviousPage] = useState<string | null>(null);
   const [refetchTrigger, setRefetchTrigger] = useState(0);
@@ -187,6 +191,7 @@ export function useTradeData(): UseTradeDataReturn {
       if (!abortControllerRef.current.signal.aborted) {
         setData(response.results);
         setTotalCount(response.count);
+        setCountMethod(response.count_method ?? 'exact');
         setNextPage(response.next);
         setPreviousPage(response.previous);
 
@@ -253,6 +258,7 @@ export function useTradeData(): UseTradeDataReturn {
     loading,
     error,
     totalCount,
+    countMethod,
     nextPage,
     previousPage,
     refetch,

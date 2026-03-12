@@ -20,7 +20,7 @@ export default function TradeDataTable() {
 }
 
 function TradeDataTableContent() {
-  const { data, loading, error, totalCount } = useTradeData();
+  const { data, loading, error, totalCount, countMethod } = useTradeData();
 
   if (error) {
     return <ErrorState message={error} />;
@@ -32,6 +32,7 @@ function TradeDataTableContent() {
       data={data}
       loading={loading}
       totalCount={totalCount}
+      countMethod={countMethod}
     />
   );
 }

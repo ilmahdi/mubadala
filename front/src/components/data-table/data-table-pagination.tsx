@@ -4,6 +4,7 @@ import {
   ChevronRight,
   ChevronsLeft,
   ChevronsRight,
+  CircleAlert,
 } from 'lucide-react';
 
 import {
@@ -18,6 +19,7 @@ import { paginationStyles } from '@/src/config/component-styles';
 interface DataTablePaginationProps<TData> {
   table: Table<TData>;
   totalCount: number;
+  countMethod?: 'exact' | 'approximate' | 'fallback';
   onToggle: (id: string | null) => void;
   loading?: boolean;
   pageSizeOptions?: number[];
@@ -25,9 +27,15 @@ interface DataTablePaginationProps<TData> {
 
 const MAX_BACKEND_OFFSET = 10_000;
 
+const COUNT_METHOD_LABELS: Record<'approximate', string> = {
+  approximate:
+    'This result count is an approximation, for performance reasons. Use filters to narrow down your search for a more accurate count.',
+};
+
 export function DataTablePagination<TData>({
   table,
   totalCount,
+  countMethod = 'exact',
   onToggle,
   loading = false,
   pageSizeOptions = [10, 20, 30, 40, 50],
@@ -51,7 +59,17 @@ export function DataTablePagination<TData>({
           {totalCount === 0 ? 0 : startRow}
         </span>
         –<span className={paginationStyles.textBold}>{endRow}</span> of{' '}
-        <span className={paginationStyles.textBold}>{totalCount}</span> results
+        <span className={paginationStyles.textBold}>{totalCount}</span>
+        {countMethod == 'approximate' && (
+          <span
+            title={COUNT_METHOD_LABELS[countMethod]}
+            aria-label={COUNT_METHOD_LABELS[countMethod]}
+            className="ml-0.5 inline-flex cursor-help align-middle text-gray-500"
+          >
+            <CircleAlert className="h-3.5 w-3.5" />
+          </span>
+        )}{' '}
+        results
       </p>
 
       <div className={paginationStyles.controls}>

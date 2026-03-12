@@ -250,8 +250,18 @@ class ProcessedFile(models.Model):
 
 
 class QueryCountCache(models.Model):
+    class Tier(models.IntegerChoices):
+        EXACT = 2, "Exact (with timeout)"
+        APPROXIMATE = 3, "Approximate (TABLESAMPLE)"
+        FALLBACK = 4, "Fallback (full count)"
+
     query_hash = models.CharField(max_length=64, unique=True, db_index=True)
     count = models.BigIntegerField()
+    tier = models.IntegerField(
+        choices=Tier.choices,
+        default=Tier.EXACT,
+        help_text="Which tier produced this cached count: 2=exact, 3=approximate, 4=fallback.",
+    )
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
