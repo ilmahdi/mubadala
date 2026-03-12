@@ -193,11 +193,13 @@ export const authConfig: NextAuthConfig = {
      * Middleware-level authorization check.
      *
      * Rules:
-     *  - Authenticated + /trades  → allow
-     *  - Authenticated + / or /auth  → redirect to /trades
+     *  - Authenticated (no error) + /trades  → allow
+     *  - Authenticated (no error) + / or /auth  → redirect to /trades
      *  - Unauthenticated + /trades → redirect to /auth/signin
-     *  - RefreshTokenError            → redirect to /auth/signin
-     *  - Everything else              → allow
+     *  - RefreshTokenError (not on auth route) → redirect to /auth/signin
+     *  - Any session error + auth route → allow (let the user sign in again)
+     *  - Everything else → allow
+     *
      */
     authorized({ auth: session, request }) {
       const { pathname } = request.nextUrl;
@@ -206,15 +208,17 @@ export const authConfig: NextAuthConfig = {
       const isAuthRoute = pathname.startsWith('/auth');
       const isLanding = pathname === '/';
 
-      // Force re-login when the backend refresh token is invalid
-      if (session?.error === 'RefreshTokenError') {
+      const hasSessionError = !!session?.error;
+      if (hasSessionError && !isAuthRoute) {
         return Response.redirect(
           new URL('/auth/signin', request.nextUrl.origin),
         );
       }
 
-      // Redirect authenticated users away from landing page & auth routes
-      if (isAuthenticated && (isLanding || isAuthRoute)) {
+      // Redirect authenticated users (with a healthy session) away from the
+      // landing page and auth routes.  Skip this when there is a session error
+      // so the user stays on the sign-in page and can re-authenticate.
+      if (isAuthenticated && !hasSessionError && (isLanding || isAuthRoute)) {
         return Response.redirect(new URL('/trades', request.nextUrl.origin));
       }
 
