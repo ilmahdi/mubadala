@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { Poppins } from 'next/font/google';
 import { NuqsAdapter } from 'nuqs/adapters/next/app';
 import { AuthProvider } from '@/src/components/auth/AuthProvider';
+import { Analytics } from '@vercel/analytics/next';
 import './globals.css';
 
 const poppins = Poppins({
@@ -26,6 +27,7 @@ export default function RootLayout({
         <AuthProvider>
           <NuqsAdapter>{children}</NuqsAdapter>
         </AuthProvider>
+        <Analytics />
       </body>
     </html>
   );
