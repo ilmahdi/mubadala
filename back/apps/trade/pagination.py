@@ -50,7 +50,7 @@ class CachedCountPaginator(Paginator):
             [QueryCountCache(query_hash=query_hash, count=count, tier=tier)],
             update_conflicts=True,
             unique_fields=["query_hash"],
-            update_fields=["count", "tier"],
+            update_fields=["count", "tier", "created_at"],
         )
 
     def _get_exact_count_with_timeout(self, queryset) -> tuple[int, float] | None:
