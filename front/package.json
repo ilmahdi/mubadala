@@ -6,10 +6,10 @@
     "dev": "npx next dev",
     "build": "npx next build",
     "start": "npx next start",
-    "lint": "next lint",
-    "lint:fix": "next lint --fix",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
-    "check": "next lint && prettier --check ."
+    "check": "eslint . && prettier --check ."
   },
   "dependencies": {
     "@auth/core": "^0.41.0",
