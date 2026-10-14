@@ -17,6 +17,7 @@
     "@dnd-kit/modifiers": "^9.0.0",
     "@dnd-kit/sortable": "^10.0.0",
     "@fontsource/hind": "^5.2.8",
+    "@fontsource/poppins": "^5.3.0",
     "@fontsource/raleway": "^5.2.8",
     "@fortawesome/fontawesome-free": "^7.1.0",
     "@hookform/resolvers": "^5.2.2",

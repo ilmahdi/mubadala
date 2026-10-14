@@ -123,7 +123,7 @@ DATABASES = {
         "PORT": env("DB_PORT", "5432"),
         "CONN_MAX_AGE": 60,  # Persistent connections — reduces connection overhead
         "OPTIONS": {
-            "sslmode": "require",
+            "sslmode": env("DB_SSLMODE", "prefer"),
             "connect_timeout": 10,
         },
     }

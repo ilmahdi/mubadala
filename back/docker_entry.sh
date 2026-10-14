@@ -20,6 +20,11 @@ pip install --no-cache-dir -r requirements.txt
 
 wait_for_db
 
+echo "Applying database migrations..."
+python manage.py makemigrations authentication trade --noinput || true
+python manage.py migrate --noinput
+python manage.py createcachetable || true
+
 if [ "$DEV_MODE" = "true" ]; then
   echo "Running Django in development mode..."
   exec python manage.py runserver "$BACK_HOST:$BACK_PORT"

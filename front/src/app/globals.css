@@ -6,6 +6,7 @@
 
 /* Legacy tokens for backward compatibility - will be deprecated */
 :root {
+  --font-poppins: 'Poppins', sans-serif;
   --bg: oklch(100% 0.00011 271.152);
   --fg: oklch(0.145 0 0);
   --brand: #c1272d;

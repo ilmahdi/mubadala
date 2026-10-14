@@ -51,7 +51,8 @@ down:
 # ---------------------------------------
 # Restart all services
 # ---------------------------------------
-restart: $(DC) -f $(DC_FILE) restart
+restart:
+	$(DC) -f $(DC_FILE) restart
 
 # =======================================
 # Logs
