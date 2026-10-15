@@ -67,7 +67,7 @@ const SEARCH_FILTER_CONFIGS: Record<SearchMode, SearchFilterConfig> = {
 /** Configuration constants. */
 export const SEARCH_CONFIG = {
   debounceMs: 350,
-  storageKey: 'jadwa_search_mode',
+  storageKey: 'mubadala_search_mode',
   defaultMode: 'hscode' as SearchMode,
 } as const;
 

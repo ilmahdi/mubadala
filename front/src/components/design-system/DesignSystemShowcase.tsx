@@ -26,7 +26,7 @@ export default function DesignSystemShowcase() {
         <header className="border-b border-gray-200 pb-6">
           <h1 className={textStyles.heading.h1}>Design System</h1>
           <p className={textStyles.body.default}>
-            Jadwa Trade Management System - Design Token Reference
+            Mubadala Trade Management System - Design Token Reference
           </p>
         </header>
 
@@ -438,7 +438,7 @@ export default function DesignSystemShowcase() {
         {/* Footer */}
         <footer className="mt-12 border-t border-gray-200 pt-6 text-center">
           <p className={textStyles.muted}>
-            Design System v1.0.0 • Jadwa Trade Management System
+            Design System v1.0.0 • Mubadala Trade Management System
           </p>
         </footer>
       </div>
